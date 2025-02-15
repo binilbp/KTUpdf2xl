@@ -10,8 +10,8 @@ def extract_pdf_tables(pdf_path, verbose = 0):
 
     try:    #extracting using the stream method of camelot
         tables = camelot.read_pdf(pdf_path, flavor='stream', pages='all')
-    except:
-        print('Error in Table Extraction: {e}')    
+    except Exception as e:
+        print(f'Error in Table Extraction: {e}')    
 
     end_time = time.time()
 
@@ -43,8 +43,8 @@ def output_excel(tables, output_file = 'output.xlsx' ):
                 # Write each table's dataframe to a separate sheet in the Excel fiGle
                 sheet_name = f"Table_{i+1}"
                 table.df.to_excel(writer, sheet_name=sheet_name, index=False)
-    except:
-        print("Error in output ; No tables found to convert {e}")
+    except Exception as e:
+        print(f"Error in output :{e}")
 
 
 
