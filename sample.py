@@ -14,9 +14,19 @@ def extract_pdf_tables(pdf_path, output_file='output.xlsx'):
     if tables:
         with pd.ExcelWriter(output_file, engine='xlsxwriter') as writer:
             for i, table in enumerate(tables):
-                # Write each table's dataframe to a separate sheet in the Excel fiGle
+                # Write each table's dataframe to a separate sheet in the Excel file
                 sheet_name = f"Table_{i+1}"
                 table.df.to_excel(writer, sheet_name=sheet_name, index=False)
+
+                # Get the current worksheet
+                worksheet = writer.sheets[sheet_name]
+
+                # Adjust the column width based on the length of the content
+                for j, col in enumerate(table.df.columns):
+                    max_length = max(table.df[col].astype(str).apply(len).max(), len(str(col)))  # Get max length of the column
+
+                    worksheet.set_column(j, j, max_length + 2)  # Add a little extra space
+
     else:
         print("No tables found in the PDF.")
 
