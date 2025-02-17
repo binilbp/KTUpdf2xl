@@ -7,7 +7,7 @@ def extract_pdf_tables(pdf_path, output_file='output.xlsx'):
     start_time = time.time()
 
     # Extract tables using Camelot with customized parameters
-    tables = camelot.read_pdf(pdf_path, flavor='stream', pages='all')
+    tables = camelot.read_pdf(pdf_path, flavor='lattice', pages='all')
     print(tables.n)
 
     # If tables are extracted, process them and save to an Excel file
