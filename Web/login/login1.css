@@ -2,7 +2,7 @@
 
 
 :root {
-    --primary-color:#27b397;
+    --primary-color: rgba(226, 194, 166,0.9);
     --text-dark:#0f172a;
     --text-light:#94a3b8;
     --extra-light:#f8fafc;
@@ -25,8 +25,8 @@ body{
     background-image: url(./vidyatcr_cover.jpg);
     background-size: cover;
     background-position: center;
-    background-blend-mode: overlay;
-    background-color: rgba(0,0,0,0.2);
+    background-blend-mode: multiply;
+    background-color: rgb(0, 0, 0,0.45);
    /* overflow: hidden; */
 }
 
@@ -127,13 +127,15 @@ input{
     height: 100%;
     width: 40%;
     overflow: hidden; 
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
     transition: transform 0.6s ease-in-out;
     z-index: 10;
 }
 
 .overlay_wrapper{
-    background-color: rgba(140, 212, 245, 0.5);
-
+    background-color:  rgba(244, 215, 147, 0.2);
+    backdrop-filter: blur(10px);
     background-position: center center;
     background-size: cover;
     background-repeat: no-repeat;
@@ -142,7 +144,7 @@ input{
     left: -150%;
     height: 100%;
     width: 250%;
-    transition: transform 0.6s ease-in-out;
+    transition: transform 0.4s ease-in-out;
 }
 
 .overlay_panel{
@@ -155,7 +157,9 @@ input{
     text-align: center;
     height: 100%;
     width: 40%;
-    transition: transform 0.6s ease-in-out;
+    transition: transform 0.4s ease-in-out;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .overlat_panel_left{
@@ -188,6 +192,13 @@ input{
     color: var(--white);
     border-radius: 2rem;
     background-color: transparent;
+}
+
+.coll_logo{
+    position: absolute;
+    left: 50%;
+    top: 200px;
+    transform: translateX(-50%);
 }
 
 #overlayBtn{
