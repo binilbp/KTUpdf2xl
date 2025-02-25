@@ -2,15 +2,20 @@
 A Website to Convert the ktu marklist pdf to better Readable and Analysable form 
 
 ## Requirements
-### venv
-create a new python environment using 
+### venv (optional)
+create a new python environment to avoid package conflicts
 (for windows)
 ```sh
 python -m venv venv
 ```
 
-### packages
-install the required packages using requirements.txt file
+### Packages
+The following packages are required:
+- tabula-py[jpype]
+- xlsxwriter
+- pandas
+
+The required packages can installed using requirements.txt file
 ```sh
 pip install -r requirements.txt
 ```
