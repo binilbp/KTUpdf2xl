@@ -12,16 +12,16 @@ python -m venv venv
 
 ### Packages
 The following packages are required:
-- tabula-py[jpype]
-- xlsxwriter
-- pandas
+- `tabula-py[jpype]`
+- `xlsxwriter`
+- `pandas`
 
 The required packages can installed using requirements.txt file
 ```sh
 pip install -r requirements.txt
 ```
-### java 8+
-java JRE required for the working of tabula-py
+### JRE 8+
+`tabula-py[jpype]` requires JRE 8+ for working
 <details>
   <br>
   <summary>JRE Installation Guide (click to expand)</summary>
