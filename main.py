@@ -5,7 +5,7 @@ import pandas as pd
 
 
 def extract_pdf_tables(pdf_path, verbose = 0):
-    print("starting table extraction ....\n")
+    print("Starting table extraction ....\n")
     start_time = time.time()
 
     try:#extracting using the lattice method of tabula, header=None set 0, 1 as cols headings
@@ -18,33 +18,75 @@ def extract_pdf_tables(pdf_path, verbose = 0):
                 lattice = True,
                 pandas_options={'header': None}
                 )
+        
+        end_time = time.time()
+
+        #give additional report about the extraction if verbose is =1
+        if verbose == 1:
+            time_taken = round(end_time-start_time,2)
+            print(f"Total Time Taken ={time_taken}s ")
+
+        #return tables as output for passing to the next organizing function 
+        return tables_list
+
 
     except Exception as e:
         print(f'Error in Table Extraction: {e}')    
-
-    end_time = time.time()
-
-    #give additional report about the extraction if verbose is =1
-    if verbose == 1:
-        time_taken = round(end_time-start_time,2)
-        print(f"Total Time Taken ={time_taken}s ")
-
-    #return tables as output for passing to the next organizing function 
-    return tables_list
-
-
+    
 
 def organize_tables(tables_list, verbose = 0):   
+    try:
     # concating all the tables in tables_list to a single table called big_table
-    big_table = pd.DataFrame()  
-    for table in tables_list:
-        big_table = pd.concat([big_table, table]) 
+        big_table = pd.DataFrame()  
+        for table in tables_list:
+            big_table = pd.concat([big_table, table], ignore_index=True) 
+
+        #dynamically creating column name list
+        column_name_list = []
+        for column_number in range(big_table.columns.size):
+            column_name_list.append(f"col{column_number+1}")  #col1, col2, col3....
+
+        #renaming the columns using the created list
+        big_table.columns = column_name_list
+
+
+    #splitting the table into different seperate department tables
+        organized_tables_list = split_departments(big_table, 0)
+        return organized_tables_list
+    
+
+    except Exception as e:
+        print(f"Error in Table Organization: {e}")
 
 
 
-    new_tables_list = []
-    new_tables_list.append(big_table)
-    return new_tables_list
+def split_departments(big_table, verbose):
+    try:
+        department_splitted_tables_list = []
+        split_locations = []
+
+        #find the row indexes where "Generated" is present to split tables
+        for row in big_table.itertuples():
+            if "Generated" in row.col1:
+                split_locations.append(row.Index) 
+
+        #here splitting the departments by traversing backward in big_table
+        for row_index in reversed(split_locations):
+            #all the rows from row_index to the end of the table is split into a department
+            department_splitted_tables_list.append(big_table.iloc[row_index:])
+            #the splitted department is then removed form the big_table
+            big_table = big_table.iloc[:row_index] 
+
+        #making the order of departments correct again
+        department_splitted_tables_list = reversed(department_splitted_tables_list)
+
+        return  department_splitted_tables_list
+
+
+    except Exception as e:
+        print(f"Error in splitting the departments: {e}")
+
+
 
 
 def output_excel(organized_tables_list, output_file = 'output.xlsx' ):
@@ -75,6 +117,7 @@ def main(pdf_path, verbose=0):
     tables_list = extract_pdf_tables(pdf_path, verbose)
     organized_tables_list = organize_tables(tables_list, verbose)
     output_excel(organized_tables_list)    
+
 
 
 if __name__ == "__main__":   
