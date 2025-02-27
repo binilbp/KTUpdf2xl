@@ -30,7 +30,7 @@ pip install -r requirements.txt
 
   1. Download JRE from https://adoptium.net/temurin/releases/?os=windows&arch=x64&package=jre
   (for windows)
-  2. Install the msi file, and set the option as show in the image for setting up the path ![Step 3 image](https://github.com/13inilb/KTUpdf2xl/blob/tabula/Images/installation.png)
+  2. Install the msi file, and set the option as show in the image for setting up the path ![Step 3 image](https://github.com/13inilb/KTUpdf2xl/blob/main/Images/installation.png)v
   3. Check if java is properly installed by the running the command in a new terminal
 ```sh
 java -version
