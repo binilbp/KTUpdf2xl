@@ -1,3 +1,4 @@
+from pandas.io import excel
 from tabula import read_pdf
 import time
 import polars as pl
@@ -60,38 +61,42 @@ def split_departments(big_table, verbose = 1):
 
 
 def split_grade(table):
-    print("> Splitting Grades ....")
-    course_code_regex = (r"^[A-Z]{3}\d{3}$")
-    #check if column0 row contain course code; if yes concat column0 with column1 with seperator "-"
-    #and add to new column,else add col0 to new column named "col1"
-    table = table.with_columns(
-        pl.when(pl.col("0").str.contains(course_code_regex))
-        .then(pl.concat_str(
-                [pl.col("0"),pl.col("1")],
-                separator=" - ",
-            )
-        )
-        .otherwise(pl.col("0"))
-        .alias("col1")
-    )
-    #creating list of course codes
-    #extrat all regex statisfying values to a new series
-    #then explode the series and delete null columns and convert it to list
-    course_code_list = table.select(
-        pl.col("0")
-        .str.extract_all(course_code_regex)
-    )["0"].explode().drop_nulls().to_list()
-    #use course codes in list to create regex,this is then used to
-    #extract the grades create a new column based on the course code
-    for course_code in course_code_list:
+    try:
+        print("> Splitting Grades ....")
+        course_code_regex = (r"^[A-Z]{3}\d{3}$")
+        #check if column0 row contain course code; if yes concat column0 with column1 with seperator "-"
+        #and add to new column,else add col0 to new column named "col1"
         table = table.with_columns(
-            pl.col("1")
-            .str.extract(rf"{course_code}\(([^)]+)\)")
-            .alias(course_code)
+            pl.when(pl.col("0").str.contains(course_code_regex))
+            .then(pl.concat_str(
+                    [pl.col("0"),pl.col("1")],
+                    separator=" - ",
+                )
+            )
+            .otherwise(pl.col("0"))
+            .alias("col1")
         )
+        #creating list of course codes
+        #extrat all regex statisfying values to a new series
+        #then explode the series and delete null columns and convert it to list
+        course_code_list = table.select(
+            pl.col("0")
+            .str.extract_all(course_code_regex)
+        )["0"].explode().drop_nulls().to_list()
+        #use course codes in list to create regex,this is then used to
+        #extract the grades create a new column based on the course code
+        for course_code in course_code_list:
+            table = table.with_columns(
+                pl.col("1")
+                .str.extract(rf"{course_code}\(([^)]+)\)")
+                .alias(course_code)
+            )
 
-    table = table.drop(["0","1"])
-    return table
+        table = table.drop(["0","1"])
+        return table
+
+    except Exception as e:
+        print(f"Error in Organising Grades: {e}")
 
 
 def output_to_excel(departs_list):
