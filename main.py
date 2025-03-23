@@ -1,4 +1,3 @@
-from pandas.io import excel
 from tabula import read_pdf
 import time
 import polars as pl
@@ -126,4 +125,5 @@ output_to_excel(grades_list)
 
 time_taken = round(time.time()-start_time,2)
 print(f"--Total time taken ={time_taken}s ")
+
 print(f"> Successfully Exported 😉")
