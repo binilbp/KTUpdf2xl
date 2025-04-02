@@ -1,3 +1,4 @@
 tabula-py[jpype]
-pandas>=2.0.0
-XlsxWriter==3.2.2
+polars
+xlsxwriter
+pyarrow
