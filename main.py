@@ -3,6 +3,10 @@ import time
 import polars as pl
 import xlsxwriter
 
+depart_names_list = []
+
+
+
 def extract_pdf_tables(pdf_path):
     try:
         print("> Starting Table Extraction ....")
@@ -24,6 +28,8 @@ def split_departments(big_table):
         return []
 
 def split_grade(table):
+    global depart_names_list
+
     try:
         print("> Splitting Grades ....")
         course_code_regex = (r"^[A-Z]{3}\d{3}$")
@@ -78,6 +84,17 @@ def split_grade(table):
             descending=[False, True, False]
         )
 
+        #storing the dept names to global variable
+
+        department_name = (
+            table["col1"].str.extract(student_id_pattern, group_index=3)
+            .drop_nulls()
+            .unique()
+            .item()
+        )
+        depart_names_list.append(department_name)
+
+
         df_sorted = df_sorted.drop(["prefix","batch_year","department","roll_number","prefix_priority"])
         return df_sorted
 
@@ -87,10 +104,12 @@ def split_grade(table):
 
 
 def output_to_excel(departs_list, output_path="output.xlsx"):
+    global depart_names_list
+    print(depart_names_list)
     try:
         with xlsxwriter.Workbook(output_path) as workbook:
             for i, df in enumerate(departs_list):
-                df.write_excel(workbook=workbook, worksheet=f"Sheet{i+1}", autofit=True,autofilter=None, table_style="Table Style Medium 5")
+                df.write_excel(workbook=workbook, worksheet=f"{depart_names_list[i]}", autofit=True,autofilter=None, table_style="Table Style Medium 5")
         print(output_path)
         return output_path
     except Exception as e:
@@ -114,6 +133,8 @@ def process_pdf(pdf_path):
 
     # Export to Excel
     output_file = output_to_excel(grades_list, output_path=pdf_path.parent/"processed_output.xlsx")
+    
+    # output_file = output_to_excel(grades_list, output_path="output.xlsx")
     
     time_taken = round(time.time() - start_time, 2)
     print(f"--Total time taken = {time_taken}s ")
