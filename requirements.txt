@@ -2,3 +2,6 @@ tabula-py[jpype]
 polars
 xlsxwriter
 pyarrow
+uvicorn[standard]
+fastapi
+python-multipart
