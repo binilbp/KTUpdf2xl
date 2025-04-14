@@ -1,39 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>HTML 5 Boilerplate</title>
-    <link rel="stylesheet" src="style.css">
-  </head>
-  <body>
-	  <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined" rel="stylesheet">
-	  <link rel="stylesheet" href="style.css">
-	  <div class="container">
-		<h1 class="title">KTU Result Analyzer</h1>
-		<div class="drag_and_drop">
-			<form class="form-container" enctype='multipart/form-data'>
-				<div class="upload-files-container">
-					<div class="drag-file-area">
-						<span class="material-icons-outlined upload-icon"> file_upload </span>
-						<h3 class="dynamic-message"> Drag & drop any file here </h3>
-						<label class="label"> or <span class="browse-files"> <input type="file" class="default-file-input"/> <span class="browse-files-text">browse file</span> <span>from device</span> </span> </label>
-					</div>
-					<span class="cannot-upload-message"> <span class="material-icons-outlined">error</span> Please select a file first <span class="material-icons-outlined cancel-alert-button">cancel</span> </span>
-					<div class="file-block">
-						<div class="file-info"> <span class="material-icons-outlined file-icon">description</span> <span class="file-name"> </span> | <span class="file-size">  </span> </div>
-						<span class="material-icons remove-file-icon">delete</span>
-						<div class="progress-bar"> </div>
-					</div>
-					<button type="button" class="upload-button"> Upload </button>
-					<script src="script.js"></script>
-			
-				</div>
-			</form>
-		</div>	
-    <script src="index.js"></script>
-	<footer><p>Beta Version</p></footer>	
-  </body>
- 
+    <title>KTU Result Analyzer</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="drag-drop-section">
+            <div class="header-section">
+                <h1>Upload Files</h1>
+            </div>
+            <div class="drop-section">
+                <div class="col">
+                    <div class="cloud-icon">
+                        <img class="cloud" src="./icons/cloud-upload.svg" alt="cloud">
+                    </div>
+                    <span>Drag & Drop</span>
+                    <button class="file-selector">Browse Files</button>
+                    <input type="file" class="file-selector-input"/>
+                </div>
+                <div class="col">
+                    <div class="drop-here">Drop Here</div>
+                </div>
+            </div>
+            <div class="list-section">
+                <div class="list-title">Uploaded Files</div>
+                     <ul class="list">
+                        <!-- <li class="in-prog">
+                            <div class="col">
+                                <img class="pdflogo" src="./icons/pdf.svg" alt="pdf-logo">
+                            </div>
+                            <div class="col">
+                                <div class="file-name">
+                                    <div class="name">File Name Here</div>
+                                    <span>50%</span>
+                                </div>
+                                <div class="file-progress">
+                                    <span></span>
+                                </div>
+                                <div class="file-size">2.2 MB</div>
+                            </div>
+                            <div class="col">
+                                <i class="fas fa-xmark cross"></i>
+                                <i class="fas fa-check tick"></i>
+                            </div>
+                        </li> -->
+                    </ul>
+                    <button class="submit">
+                        <span>Confirm</span>
+                    </button>
+                </div>    
+            </div>
+        </div>      
+    </div>
+<script src="script.js"></script>    
+</body>
 </html>
