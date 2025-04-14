@@ -1,10 +1,11 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from fastapi.responses import FileResponse
 import shutil
 from pathlib import Path
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from main import process_pdf
+import uuid
 
 app = FastAPI()
 
@@ -21,18 +22,34 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 
 app.mount("/static", StaticFiles(directory="web", html=True), name="static")
 
+
+def cleanup_files(*paths: Path):
+    for path in paths:
+        try:
+            path.unlink(missing_ok=True)
+            print(f"[CLEANUP] Deleted: {path.name}")
+        except Exception as e:
+            print(f"[CLEANUP ERROR] {e}")
+
+
 @app.post("/process-pdf/")
-async def process_pdf_api(file: UploadFile = File(...)):
-    file_path = UPLOAD_DIR / file.filename
+async def process_pdf_api(file: UploadFile = File(...), background_tasks: BackgroundTasks = None):
+    # Generate unique filename
+    file_ext = Path(file.filename).suffix
+    unique_id = uuid.uuid4().hex
+    file_path = UPLOAD_DIR / f"{unique_id}{file_ext}"
 
     # Save uploaded file
     with file_path.open("wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # Process the PDF and get the output file
+    # Process and get output file
     output_file = process_pdf(file_path)
 
     if output_file and output_file.exists():
+        # Schedule cleanup in the background
+        background_tasks.add_task(cleanup_files, file_path, output_file)
+
         return FileResponse(
             path=output_file,
             filename="processed_output.xlsx",
