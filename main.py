@@ -90,6 +90,7 @@ def prettier_table(table, course_code_list):
     try:
         print("> Prettifying Grades ....")
         student_id_pattern = r"([A-Z]+)(\d{2})([A-Z]+)(\d+)"
+        course_code_name_pattern = r'^([A-Z]{3}\d{3})\s*-\s*(.+)$'
 
         #sorting student id
          # Extract parts using str.extract_all and pl.concat
@@ -99,30 +100,37 @@ def prettier_table(table, course_code_list):
             pl.col("col1").str.extract(student_id_pattern, group_index=2).cast(pl.Int32).alias("batch_year"),
             pl.col("col1").str.extract(student_id_pattern, group_index=3).alias("department"),
             pl.col("col1").str.extract(student_id_pattern, group_index=4).cast(pl.Int32).alias("roll_number")
-        ])
+        ]).sort("batch_year")
 
         # Create priority values according to prefix:
             # "Course Code" → 0, code-name → 1, "Register No" → 2, LVAS → 3, VAS → 4
-        df_sorted = df_extracted.with_columns([
-            pl
-            .when(pl.col("col1").str.contains("Generated")).then(0)
-            .when(pl.col("col1").str.contains("Course Code")).then(1)
-            .when(pl.col("col1").str.contains("Register No")).then(3)
-            .when(pl.col("prefix").str.len_bytes() == 4).then(4)
-            .when(pl.col("prefix").str.len_bytes() == 3).then(5)
-            .otherwise(2).alias("prefix_priority")
-        ]).sort(
-            ["prefix_priority", "batch_year", "roll_number"],
-            descending=[False, True, False]
-        )
+        # df_sorted = df_extracted.with_columns([
+        #     pl
+        #     .when(pl.col("col1").str.contains("Generated")).then(0)
+        #     .when(pl.col("col1").str.contains("Course Code")).then(1)
+        #     .when(pl.col("col1").str.contains("Register No")).then(3)
+        #     .when(pl.col("prefix").str.len_bytes() == 4).then(4)
+        #     .when(pl.col("prefix").str.len_bytes() == 3).then(5)
+        #     .otherwise(2).alias("prefix_priority")
+        # ]).sort(
+        #     ["prefix_priority", "batch_year", "roll_number"],
+        #     descending=[False, True, False]
+        # )
 
-        #converting the rows with same priority to individual dataframes
-        #this is helpful for arrranging and adding spaces in view
-        df_depart_name = df_sorted.filter(pl.col("prefix_priority")==0).drop(["prefix","batch_year","department","roll_number"])#CSE Engg...
-        df_course_code = df_sorted.filter(pl.col("prefix_priority")==1).drop(["prefix","batch_year","department","roll_number"])#"Course Code"
-        df_subjects = df_sorted.filter(pl.col("prefix_priority")==2).drop(["prefix","batch_year","department","roll_number"]) #coursecode - coursename
-        df_lat_entry = df_sorted.filter(pl.col("prefix_priority")==4).drop(["prefix","batch_year","department","roll_number"]) #LAT grades
-        df_norm_entry = df_sorted.filter(pl.col("prefix_priority")==5).drop(["prefix","batch_year","department","roll_number"]) #Normal grades
+        # #converting the rows with same priority to individual dataframes
+        # #this is helpful for arrranging and adding spaces in view
+        # df_depart_name = df_sorted.filter(pl.col("prefix_priority")==0).drop(["prefix","batch_year","department","roll_number"])#CSE Engg...
+        # df_course_code = df_sorted.filter(pl.col("prefix_priority")==1).drop(["prefix","batch_year","department","roll_number"])#"Course Code"
+        # df_subjects = df_sorted.filter(pl.col("prefix_priority")==2).drop(["prefix","batch_year","department","roll_number"]) #coursecode - coursename
+        # df_lat_entry = df_sorted.filter(pl.col("prefix_priority")==4).drop(["prefix","batch_year","department","roll_number"]) #LAT grades
+        # df_norm_entry = df_sorted.filter(pl.col("prefix_priority")==5).drop(["prefix","batch_year","department","roll_number"]) #Normal grades
+        df_depart_name = df_extracted.filter(pl.col("col1").str.contains("Generated")).drop(["prefix","batch_year","department","roll_number"])#CSE Engg..Heading.
+        df_course_code = df_extracted.filter(pl.col("col1").str.contains("Course Code")).drop(["prefix","batch_year","department","roll_number"])#"Course Code Heading"
+        df_subjects = df_extracted.filter(pl.col("col1").str.contains(course_code_name_pattern)).drop(["prefix","batch_year","department","roll_number"]) #coursecode - coursename
+        df_lat_entry = df_extracted.filter(pl.col("prefix").str.len_bytes() == 4).drop(["prefix","batch_year","department","roll_number"]) #LAT grades
+        df_norm_entry = df_extracted.filter(pl.col("prefix").str.len_bytes() == 3).drop(["prefix","batch_year","department","roll_number"]) #Normal grades
+
+
 
         #initialise a blank row
         df_blank_row = pl.DataFrame([{col: "" for col in df_norm_entry.columns}])
