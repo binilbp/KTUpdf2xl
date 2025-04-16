@@ -162,7 +162,7 @@ def analyze_table(table):
             table = table.with_columns(pl.lit("").alias("Arrears"))
     for course in course_code_list:
         table = table.with_columns(
-            pl.when(pl.col(course).str.contains("F"))
+            pl.when(pl.col(course).str.contains_any(["F", "Absent"]))
             .then(pl.concat_str(
                     [pl.col("Arrears"),pl.lit(course)], #lit tells polars to use the given value as litteral string (not col name)
                     separator=" ",
