@@ -1,3 +1,4 @@
+from pandas.io import excel
 from tabula import read_pdf
 import time
 import polars as pl
@@ -92,54 +93,28 @@ def prettier_table(table, course_code_list):
         student_id_pattern = r"([A-Z]+)(\d{2})([A-Z]+)(\d+)"
         course_code_name_pattern = r'^([A-Z]{3}\d{3})\s*-\s*(.+)$'
 
-        #sorting student id
-         # Extract parts using str.extract_all and pl.concat
+        #sorting student id using batch year
         df_extracted = table.with_columns([
-            #prefix referes to LVAS, VAS characters before the batch year
-            pl.col("col1").str.extract(student_id_pattern, group_index=1).alias("prefix"),
-            pl.col("col1").str.extract(student_id_pattern, group_index=2).cast(pl.Int32).alias("batch_year"),
-            pl.col("col1").str.extract(student_id_pattern, group_index=3).alias("department"),
-            pl.col("col1").str.extract(student_id_pattern, group_index=4).cast(pl.Int32).alias("roll_number")
+            pl.col("col1").str.extract(student_id_pattern, group_index=1).alias("prefix"), #later using to categorize
+            pl.col("col1").str.extract(student_id_pattern, group_index=2).cast(pl.Int32).alias("batch_year"), #group_index 2 means 2nd value in regex exp
         ]).sort("batch_year")
 
-        # Create priority values according to prefix:
-            # "Course Code" → 0, code-name → 1, "Register No" → 2, LVAS → 3, VAS → 4
-        # df_sorted = df_extracted.with_columns([
-        #     pl
-        #     .when(pl.col("col1").str.contains("Generated")).then(0)
-        #     .when(pl.col("col1").str.contains("Course Code")).then(1)
-        #     .when(pl.col("col1").str.contains("Register No")).then(3)
-        #     .when(pl.col("prefix").str.len_bytes() == 4).then(4)
-        #     .when(pl.col("prefix").str.len_bytes() == 3).then(5)
-        #     .otherwise(2).alias("prefix_priority")
-        # ]).sort(
-        #     ["prefix_priority", "batch_year", "roll_number"],
-        #     descending=[False, True, False]
-        # )
+        #filter out the neccessary rows into individual tables, for prettifying the whole data
+        df_depart_name = df_extracted.filter(pl.col("col1").str.contains("Generated")).drop(["prefix","batch_year"])#CSE Engg..Heading.
+        df_course_code = df_extracted.filter(pl.col("col1").str.contains("Course Code")).drop(["prefix","batch_year"])#"Course Code Heading"
+        df_subjects = df_extracted.filter(pl.col("col1").str.contains(course_code_name_pattern)).drop(["prefix", "batch_year"]) #coursecode-coursename rows
+        df_lat_entry = df_extracted.filter(pl.col("prefix").str.len_bytes() == 4).drop(["prefix","batch_year"]) #LAT grades("LVAS" is 4 letters)
+        df_norm_entry = df_extracted.filter(pl.col("prefix").str.len_bytes() == 3).drop(["prefix","batch_year"]) #Normal grades("VAS" is 3 letters)
 
-        # #converting the rows with same priority to individual dataframes
-        # #this is helpful for arrranging and adding spaces in view
-        # df_depart_name = df_sorted.filter(pl.col("prefix_priority")==0).drop(["prefix","batch_year","department","roll_number"])#CSE Engg...
-        # df_course_code = df_sorted.filter(pl.col("prefix_priority")==1).drop(["prefix","batch_year","department","roll_number"])#"Course Code"
-        # df_subjects = df_sorted.filter(pl.col("prefix_priority")==2).drop(["prefix","batch_year","department","roll_number"]) #coursecode - coursename
-        # df_lat_entry = df_sorted.filter(pl.col("prefix_priority")==4).drop(["prefix","batch_year","department","roll_number"]) #LAT grades
-        # df_norm_entry = df_sorted.filter(pl.col("prefix_priority")==5).drop(["prefix","batch_year","department","roll_number"]) #Normal grades
-        df_depart_name = df_extracted.filter(pl.col("col1").str.contains("Generated")).drop(["prefix","batch_year","department","roll_number"])#CSE Engg..Heading.
-        df_course_code = df_extracted.filter(pl.col("col1").str.contains("Course Code")).drop(["prefix","batch_year","department","roll_number"])#"Course Code Heading"
-        df_subjects = df_extracted.filter(pl.col("col1").str.contains(course_code_name_pattern)).drop(["prefix","batch_year","department","roll_number"]) #coursecode - coursename
-        df_lat_entry = df_extracted.filter(pl.col("prefix").str.len_bytes() == 4).drop(["prefix","batch_year","department","roll_number"]) #LAT grades
-        df_norm_entry = df_extracted.filter(pl.col("prefix").str.len_bytes() == 3).drop(["prefix","batch_year","department","roll_number"]) #Normal grades
-
-
-
-        #initialise a blank row
+        #initialise a blank row for adding aesthetics in between the rows
         df_blank_row = pl.DataFrame([{col: "" for col in df_norm_entry.columns}])
+        #making a list of course codes and inserting Register No in the first position of the list
+        #this list is then applied before grades
         custom_course_code_list = course_code_list[:]
         custom_course_code_list.insert(0, "Register No") #adding a null to make the cols count correct
-        custom_course_code_list.append(3)
+        df_reg_and_codes = pl.DataFrame([custom_course_code_list], schema=df_blank_row.columns, orient="row")#orient row gives the horizontal modification
 
-        df_reg_and_codes = pl.DataFrame([custom_course_code_list], schema=df_blank_row.columns, orient="row")
-
+        #concating the tables together to get prettifyed table
         concated_table = pl.concat(
             [
                df_depart_name,
@@ -155,8 +130,6 @@ def prettier_table(table, course_code_list):
             ],
             how="vertical_relaxed" #relaxed allows the joining of values even if there is type mismatch upto a extent
         )
-
-        concated_table=concated_table.drop("prefix_priority")
         return concated_table
 
     except Exception as e:
@@ -165,21 +138,26 @@ def prettier_table(table, course_code_list):
 
 def analyze_table(table):
     global course_code_list
-    #creating Arrears column
-    if "Arrears" not in table.columns:
-            table = table.with_columns(pl.lit("").alias("Arrears"))
-    for course in course_code_list:
-        table = table.with_columns(
-            pl.when(pl.col(course).str.contains_any(["F", "Absent"]))
-            .then(pl.concat_str(
-                    [pl.col("Arrears"),pl.lit(course)], #lit tells polars to use the given value as litteral string (not col name)
-                    separator=" ",
+    try:
+        #creating Arrears column
+        if "Arrears" not in table.columns:
+                table = table.with_columns(pl.lit("").alias("Arrears"))
+        for course in course_code_list:
+            table = table.with_columns(
+                pl.when(pl.col(course).str.contains_any(["F", "Absent"]))
+                .then(pl.concat_str(
+                        [pl.col("Arrears"),pl.lit(course)], #lit tells polars to use the given value as litteral string (not col name)
+                        separator=" ",
+                    )
                 )
+                .otherwise(pl.col("Arrears"))
+                .alias("Arrears")
             )
-            .otherwise(pl.col("Arrears"))
-            .alias("Arrears")
-        )
-    return table
+        return table
+
+    except Exception as e:
+        print(f"Error in Analyzing Tables: {e}")
+
 
 def output_to_excel(departs_list, output_path="output.xlsx"):
     global depart_names_list
@@ -205,23 +183,18 @@ def process_pdf(pdf_path):
 
     # Split tables into departments
     departs_list = split_departments(big_table)
-
     # Split grades for each department
     grades_list = [split_grade(table) for table in departs_list]
-
     # Export to Excel
     # output_file = output_to_excel(grades_list, output_path=pdf_path.parent/"processed_output.xlsx")
     output_file = output_to_excel(grades_list, output_path="processed_output.xlsx")
     # output_file = output_to_excel(grades_list, output_path="output.xlsx")
-
     time_taken = round(time.time() - start_time, 2)
     print(f"--Total time taken = {time_taken}s ")
     print("> Successfully Exported 😉")
 
     global depart_names_list
     del depart_names_list
-
-
     return output_file
 
 # Run everything with one function
