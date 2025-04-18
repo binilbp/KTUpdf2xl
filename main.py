@@ -1,9 +1,7 @@
-from pandas.io import excel
 from tabula import read_pdf
 import time
 import polars as pl
 import xlsxwriter
-from xlsxwriter.custom import Custom
 
 depart_names_list = []
 course_code_list = []
@@ -15,6 +13,7 @@ def extract_pdf_tables(pdf_path):
         print("> Starting Table Extraction ....")
         tables_list = read_pdf(pdf_path, pages="all", multiple_tables=True, lattice=True, pandas_options={'header': None})
         return pl.concat([pl.from_pandas(table) for table in tables_list], how="diagonal")
+
     except Exception as e:
         print(f'Error in Table Extraction: {e}')
         return None
@@ -27,6 +26,7 @@ def split_departments(big_table):
         groups = boolean_mask.cum_sum()
         big_table = big_table.with_columns(pl.Series("groups", groups))
         return [depart.drop("groups") for _, depart in big_table.group_by("groups") if depart.height > 1]
+
     except Exception as e:
         print(f"Error in Department Splitting: {e}")
         return []
@@ -138,22 +138,32 @@ def prettier_table(table, course_code_list):
 
 def analyze_table(table):
     global course_code_list
+    student_id_pattern = r"([A-Z]+)(\d{2})([A-Z]+)(\d+)"
     try:
-        #creating Arrears column
+        # creating Arrears column
         if "Arrears" not in table.columns:
-                table = table.with_columns(pl.lit("").alias("Arrears"))
+                table = table.with_columns(
+                    pl.lit("").alias("Arrears"),
+                )
+
         for course in course_code_list:
             table = table.with_columns(
-                pl.when(pl.col(course).str.contains_any(["F", "Absent"]))
-                .then(pl.concat_str(
-                        [pl.col("Arrears"),pl.lit(course)], #lit tells polars to use the given value as litteral string (not col name)
-                        separator=" ",
-                    )
+                #F Absent TBP* Withheld FE are all considered arrears
+                pl.when(pl.col(course).str.contains("F|Absent|TBP\\*|Withheld|FE")) #re to idenitfy the strings
+                .then(pl.concat_str([pl.col("Arrears"),pl.lit(course)],separator=" ").str.strip_chars())
+                .otherwise(
+                    pl.when(pl.col(course).str.contains("Debarred"))
+                    .then(pl.concat_str([pl.col("Arrears"),pl.lit("Debarred")],separator=" "))
+                    .otherwise(pl.col("Arrears"))
                 )
-                .otherwise(pl.col("Arrears"))
                 .alias("Arrears")
-            )
-        return table
+           )
+
+        analyzis_list = []
+        df_total_students =  table.select(pl.col("col1").str.contains(student_id_pattern).sum().alias("Total_Students"))
+        total_students =  df_total_students["Total_Students"][0]
+        analyzis_list.append(f"Total Number of Students: {total_students}")
+        return table            
 
     except Exception as e:
         print(f"Error in Analyzing Tables: {e}")
@@ -186,8 +196,7 @@ def process_pdf(pdf_path):
     # Split grades for each department
     grades_list = [split_grade(table) for table in departs_list]
     # Export to Excel
-    # output_file = output_to_excel(grades_list, output_path=pdf_path.parent/"processed_output.xlsx")
-    output_file = output_to_excel(grades_list, output_path="processed_output.xlsx")
+    output_file = output_to_excel(grades_list, output_path=pdf_path.parent/"processed_output.xlsx")
     # output_file = output_to_excel(grades_list, output_path="output.xlsx")
     time_taken = round(time.time() - start_time, 2)
     print(f"--Total time taken = {time_taken}s ")
