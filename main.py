@@ -112,6 +112,7 @@ def prettier_table(table, course_code_list):
         #this list is then applied before grades
         custom_course_code_list = course_code_list[:]
         custom_course_code_list.insert(0, "Register No") #adding a null to make the cols count correct
+        #orient row gives the horizontal modification , scheme is to get the same column headers as in df_blank_row
         df_reg_and_codes = pl.DataFrame([custom_course_code_list], schema=df_blank_row.columns, orient="row")#orient row gives the horizontal modification
 
         #concating the tables together to get prettifyed table
@@ -160,9 +161,20 @@ def analyze_table(table):
            )
 
         analyzis_list = []
-        df_total_students =  table.select(pl.col("col1").str.contains(student_id_pattern).sum().alias("Total_Students"))
-        total_students =  df_total_students["Total_Students"][0]
-        analyzis_list.append(f"Total Number of Students: {total_students}")
+        df_student_details =  table.select(
+            pl.col("col1").str.contains(student_id_pattern).sum().alias("Total_Students"),
+            (pl.col("Arrears").str.len_bytes() > 1).sum().alias("Failed_Students")
+        )
+        total_students_num = df_student_details["Total_Students"][0]
+        failed_students_num = df_student_details["Failed_Students"][0]
+
+        analyzis_list.append(["Total Number of Students", total_students_num])
+        analyzis_list.append(["Total Number of Passed Students", total_students_num-failed_students_num])
+        analyzis_list.append(["Total Number of Failed Students", failed_students_num])
+        analyzis_list.append(["Pass Percent", f"{(failed_students_num/total_students_num)*100:.2f}%"])
+        df_analyzis_table = pl.DataFrame([analyzis_list], strict=False)
+
+        print(df_analyzis_table)
         return table            
 
     except Exception as e:
@@ -174,7 +186,14 @@ def output_to_excel(departs_list, output_path="output.xlsx"):
     try:
         with xlsxwriter.Workbook(output_path) as workbook:
             for i, df in enumerate(departs_list):
-                df.write_excel(workbook=workbook, worksheet=f"{depart_names_list[i]}", autofit=True, autofilter=None, include_header=True, table_style="Table Style Light 8")
+                df.write_excel(
+                    workbook=workbook, 
+                    worksheet=f"{depart_names_list[i]}", 
+                    autofit=True, 
+                    autofilter=None, 
+                    include_header=True, 
+                    table_style="Table Style Light 8"
+                )
         print(output_path)
         return output_path
     except Exception as e:
@@ -196,8 +215,8 @@ def process_pdf(pdf_path):
     # Split grades for each department
     grades_list = [split_grade(table) for table in departs_list]
     # Export to Excel
-    output_file = output_to_excel(grades_list, output_path=pdf_path.parent/"processed_output.xlsx")
-    # output_file = output_to_excel(grades_list, output_path="output.xlsx")
+    #output_file = output_to_excel(grades_list, output_path=pdf_path.parent/"processed_output.xlsx")
+    output_file = output_to_excel(grades_list, output_path="output.xlsx")
     time_taken = round(time.time() - start_time, 2)
     print(f"--Total time taken = {time_taken}s ")
     print("> Successfully Exported 😉")
