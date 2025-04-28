@@ -5,3 +5,4 @@ pyarrow
 uvicorn[standard]
 fastapi
 python-multipart
+pdfplumber
