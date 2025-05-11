@@ -3,3 +3,5 @@ venv
 *.pdf
 *.xlsx
 xls.py
+*.nix
+*.lock
