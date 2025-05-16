@@ -22,21 +22,10 @@ def extract_main_title(pdf_path):
 def extract_pdf_tables(pdf_path):
     try:
         print("> Starting Table Extraction ....")
-        tables_list = read_pdf(
-            pdf_path,
-            pages="all",
-            multiple_tables=True,
-            lattice=True,                                                    #lattice is an extraction method
-            pandas_options={'header': None}
-        )
-        return pl.concat(
-            [pl.from_pandas(table) for table in tables_list],
-             how="diagonal"
-        )
-
+        tables_list = read_pdf(pdf_path, pages="all", multiple_tables=True, lattice=True, pandas_options={'header': None})
+        return pl.concat([pl.from_pandas(table) for table in tables_list],how="diagonal")
     except Exception as e:
         print(f'Error in Table Extraction: {e}')
-
 
 
 def split_departments(big_table):
@@ -45,39 +34,37 @@ def split_departments(big_table):
         boolean_mask = big_table["0"].str.contains("Generated")
         groups = boolean_mask.cum_sum()
         big_table = big_table.with_columns(pl.Series("groups", groups))
-                                                                            #split the tables using "Generated" keyword 
         return [depart.drop("groups") for _, depart in big_table.group_by("groups") if depart.height > 1]
-
+        #table with height 1 is college name , we return only height>1 tables
     except Exception as e:
         print(f"Error in Department Splitting: {e}")
 
 
-def create_grades_partitions(table):
+def create_results_partitions(table, course_code_regex):
     student_id_pattern = r"([A-Z]+)(\d{2})([A-Z]+)(\d+)"
-    course_code_regex = (r"^[A-Z]{3}\d{3}$")
     try:
-        print("> Creating Grades Partition ...")
-        course_code_list = table.select(
-            pl.col("0")
-            .str.extract_all(course_code_regex)
-        )["0"].explode().drop_nulls().to_list()
+        print("> Creating Result Partitions ...")
+        course_code_list = table.select(pl.col("0")
+                   .str.extract_all(course_code_regex))["0"].explode().drop_nulls().to_list()
         for course_code in course_code_list:
             table = table.with_columns(
                 pl.col("1")
                 .str.extract(rf"{course_code}\(([^)]+)\)")
                 .alias(course_code)
             )
-
-        table = table.drop(["0","1"])
+        table = table.drop(["1"])
         table = table.with_columns([
-            pl.col("col1").str.extract(student_id_pattern, group_index=1).alias("prefix"), #later using to categorize
-            pl.col("col1").str.extract(student_id_pattern, group_index=2).cast(pl.Int32).alias("batch_year"), #group_index 2 means 2nd value in regex exp
-        ])
-
-        print(table)
+            pl.col("0").str.extract(student_id_pattern, group_index=1).alias("prefix"), #later using to categorize
+            pl.col("0").str.extract(student_id_pattern, group_index=2).cast(pl.Int32).alias("batch_year"), #group_index 2 means 2nd value in regex exp
+        ]).sort("batch_year")
+        current_batch_year = table.select(pl.col("batch_year").max()).item()
+        print(current_batch_year)
+        supply_results = table.filter(pl.col("batch_year").cast(pl.Int32)!=current_batch_year).drop(["prefix","batch_year"])
+        normal_results = table.filter(pl.col("batch_year")==current_batch_year).drop(["prefix","batch_year"])
+        return (normal_results, supply_results)
 
     except Exception as e:
-        print(f"Error in Department Splitting: {e}")
+        print(f"Error in creating Result Partitions {e}")
 
 
 def create_table_partitions(table):
@@ -87,35 +74,70 @@ def create_table_partitions(table):
         print("> Creating Title Partion  ...")
         if "Generated" in table[0, 0]:
             title = table[0, 0]
-        else:
-            title = None
+
 
         print("> Creating Course Codes Partition  ...")
-        table = table.with_columns(
+        temp_table = table.with_columns(
             pl.when(pl.col("0").str.contains(course_code_regex))
-            .then(pl.concat_str([pl.col("0"),pl.col("1")],
-                                separator=" - ",))                           #example: "CST304 - COMPILER DESIGN"
+            .then(pl.concat_str([pl.col("0"),pl.col("1")],separator=" - ",))                           #example: "CST304 - COMPILER DESIGN"
             .otherwise(pl.col("0"))
             .alias("col1")
         )
-        course_codes = table.filter(pl.col("col1").str.contains(course_code_name_regex))
-        
-        return None
+        course_codes = temp_table.filter(pl.col("col1").str.contains(course_code_name_regex))
+        normal_results, supply_results = create_results_partitions(table, course_code_regex  )
 
+
+        supply_results.write_excel(
+            workbook="supplytest.xlsx",
+            # worksheet=f"{depart_names_list[i]}",
+            autofit=True,
+            autofilter=None,
+            include_header=True,
+            table_style="Table Style Light 8"
+        )
+
+        normal_results.write_excel(
+            workbook="normaltest.xlsx",
+            # worksheet=f"{depart_names_list[i]}",
+            autofit=True,
+            autofilter=None,
+            include_header=True,
+            table_style="Table Style Light 8"
+        )
+        return None
 
     except Exception as e:
         print(f"Error in Creating Table Partitions: {e}")
 
 
+#TODO output setakkanam(combine the different generated tables and create mannually for more modification) and analyze table TT
+def output_to_excel(departs_list, output_path="output.xlsx"):
+    global depart_names_list
+    try:
+        with xlsxwriter.Workbook(output_path) as workbook:
+            for i, df in enumerate(departs_list):
+                df.write_excel(
+                    workbook=workbook,
+                    # worksheet=f"{depart_names_list[i]}",
+                    autofit=True,
+                    autofilter=None,
+                    include_header=True,
+                    table_style="Table Style Light 8"
+                )
+        print(output_path)
+        return output_path
+
+    except Exception as e:
+        print(f"Error in Exporting to Excel: {e}")
+        return None
 
 def process_pdf(pdf_path):
     start_time = time.time()
-
-    main_title = extract_main_title(pdf_path) #used for creating table_detail
+    main_title = extract_main_title(pdf_path)
     raw_table = extract_pdf_tables(pdf_path)
     department_tables = split_departments(raw_table)
     department_tables = [create_table_partitions(table) for table in department_tables]
-
+    print(department_tables)
     print(f"Time Taken: {round(time.time() - start_time,2)}")
 
 
