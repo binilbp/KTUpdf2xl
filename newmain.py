@@ -43,7 +43,6 @@ def split_departments(big_table):
 def create_results_partitions(table, course_code_regex):
     student_id_pattern = r"([A-Z]+)(\d{2})([A-Z]+)(\d+)"
     try:
-        print("> Creating Result Partitions ...")
         course_code_list = table.select(pl.col("0")
                    .str.extract_all(course_code_regex))["0"].explode().drop_nulls().to_list()
         for course_code in course_code_list:
@@ -53,15 +52,20 @@ def create_results_partitions(table, course_code_regex):
                 .alias(course_code)
             )
         table = table.drop(["1"])
+        table = table.rename({"0": "Register No"})
         table = table.with_columns([
-            pl.col("0").str.extract(student_id_pattern, group_index=1).alias("prefix"), #later using to categorize
-            pl.col("0").str.extract(student_id_pattern, group_index=2).cast(pl.Int32).alias("batch_year"), #group_index 2 means 2nd value in regex exp
+            pl.col("Register No").str.extract(student_id_pattern, group_index=1).alias("prefix"), #later using to categorize
+            pl.col("Register No").str.extract(student_id_pattern, group_index=2).cast(pl.Int32).alias("batch_year"), #group_index 2 means 2nd value in regex exp
         ]).sort("batch_year")
         current_batch_year = table.select(pl.col("batch_year").max()).item()
-        print(current_batch_year)
+        print(course_code_list)
         supply_results = table.filter(pl.col("batch_year").cast(pl.Int32)!=current_batch_year).drop(["prefix","batch_year"])
+        supply_results = supply_results[[s.name for s in supply_results if not (s.null_count() == supply_results.height)]] #drop null only columns
         normal_results = table.filter(pl.col("batch_year")==current_batch_year).drop(["prefix","batch_year"])
-        return (normal_results, supply_results)
+        normal_results = normal_results[[s.name for s in normal_results if not (s.null_count() == normal_results.height)]] #drop null only columns
+        worksheet_name=normal_results.select(pl.col("Register No").str.extract(student_id_pattern, group_index=3)).item(0,0)
+
+        return (worksheet_name, normal_results, supply_results)
 
     except Exception as e:
         print(f"Error in creating Result Partitions {e}")
@@ -74,7 +78,8 @@ def create_table_partitions(table):
         print("> Creating Title Partion  ...")
         if "Generated" in table[0, 0]:
             title = table[0, 0]
-
+        else:
+            title = None
 
         print("> Creating Course Codes Partition  ...")
         temp_table = table.with_columns(
@@ -82,29 +87,38 @@ def create_table_partitions(table):
             .then(pl.concat_str([pl.col("0"),pl.col("1")],separator=" - ",))                           #example: "CST304 - COMPILER DESIGN"
             .otherwise(pl.col("0"))
             .alias("col1")
-        )
+        ).drop(["0","1"])
         course_codes = temp_table.filter(pl.col("col1").str.contains(course_code_name_regex))
-        normal_results, supply_results = create_results_partitions(table, course_code_regex  )
 
+        print("> Creating Result Partition  ...")
+        worksheet_name, normal_results, supply_results = create_results_partitions(table, course_code_regex  )
 
-        supply_results.write_excel(
-            workbook="supplytest.xlsx",
-            # worksheet=f"{depart_names_list[i]}",
-            autofit=True,
-            autofilter=None,
-            include_header=True,
-            table_style="Table Style Light 8"
+        # normal_results.write_excel(
+        #     workbook="normaltest.xlsx",
+        #     # worksheet=f"{depart_names_list[i]}",
+        #     autofit=True,
+        #     autofilter=None,
+        #     include_header=True,
+        #     table_style="Table Style Light 8"
+        # )
+        # # supply_results.write_excel(
+        #     workbook="supplytest.xlsx",
+        #     # worksheet=f"{depart_names_list[i]}",
+        #     autofit=True,
+        #     autofilter=None,
+        #     include_header=True,
+        #     table_style="Table Style Light 8"
+        # )
+
+        return(
+            {
+                "worksheet_name": worksheet_name,
+                "title": title,
+                "course_codes": course_codes,
+                "supply_results": supply_results,
+                "normal_results": normal_results,
+            }
         )
-
-        normal_results.write_excel(
-            workbook="normaltest.xlsx",
-            # worksheet=f"{depart_names_list[i]}",
-            autofit=True,
-            autofilter=None,
-            include_header=True,
-            table_style="Table Style Light 8"
-        )
-        return None
 
     except Exception as e:
         print(f"Error in Creating Table Partitions: {e}")
