@@ -58,14 +58,14 @@ def create_results_partitions(table, course_code_regex):
             pl.col("Register No").str.extract(student_id_pattern, group_index=2).cast(pl.Int32).alias("batch_year"), #group_index 2 means 2nd value in regex exp
         ]).sort("batch_year")
         current_batch_year = table.select(pl.col("batch_year").max()).item()
-        print(course_code_list)
+        max_width = len(course_code_list) + 1
         supply_results = table.filter(pl.col("batch_year").cast(pl.Int32)!=current_batch_year).drop(["prefix","batch_year"])
         supply_results = supply_results[[s.name for s in supply_results if not (s.null_count() == supply_results.height)]] #drop null only columns
         normal_results = table.filter(pl.col("batch_year")==current_batch_year).drop(["prefix","batch_year"])
         normal_results = normal_results[[s.name for s in normal_results if not (s.null_count() == normal_results.height)]] #drop null only columns
         worksheet_name=normal_results.select(pl.col("Register No").str.extract(student_id_pattern, group_index=3)).item(0,0)
 
-        return (worksheet_name, normal_results, supply_results)
+        return (worksheet_name, max_width, normal_results, supply_results)
 
     except Exception as e:
         print(f"Error in creating Result Partitions {e}")
@@ -91,7 +91,7 @@ def create_table_partitions(table):
         course_codes = temp_table.filter(pl.col("col1").str.contains(course_code_name_regex))
 
         print("> Creating Result Partition  ...")
-        worksheet_name, normal_results, supply_results = create_results_partitions(table, course_code_regex  )
+        worksheet_name, max_width, normal_results, supply_results = create_results_partitions(table, course_code_regex  )
 
         # normal_results.write_excel(
         #     workbook="normaltest.xlsx",
@@ -112,11 +112,12 @@ def create_table_partitions(table):
 
         return(
             {
-                "worksheet_name": worksheet_name,
-                "title": title,
-                "course_codes": course_codes,
-                "supply_results": supply_results,
-                "normal_results": normal_results,
+                "Department": worksheet_name,
+                "Title": title,
+                "MaxWidth": max_width,
+                "Subjects": course_codes,
+                "SupplyResults": supply_results,
+                "NormalResults": normal_results,
             }
         )
 
