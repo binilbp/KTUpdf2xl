@@ -1,4 +1,6 @@
 import logging
+from re import I
+import outputExcel
 from tabula import read_pdf
 import time
 import polars as pl
@@ -61,11 +63,11 @@ def create_results_partitions(table, course_code_regex):
         max_width = len(course_code_list) + 1
         supply_results = table.filter(pl.col("batch_year").cast(pl.Int32)!=current_batch_year).drop(["prefix","batch_year"])
         supply_results = supply_results[[s.name for s in supply_results if not (s.null_count() == supply_results.height)]] #drop null only columns
-        normal_results = table.filter(pl.col("batch_year")==current_batch_year).drop(["prefix","batch_year"])
-        normal_results = normal_results[[s.name for s in normal_results if not (s.null_count() == normal_results.height)]] #drop null only columns
-        worksheet_name=normal_results.select(pl.col("Register No").str.extract(student_id_pattern, group_index=3)).item(0,0)
+        regular_results = table.filter(pl.col("batch_year")==current_batch_year).drop(["prefix","batch_year"])
+        regular_results = regular_results[[s.name for s in regular_results if not (s.null_count() == regular_results.height)]] #drop null only columns
+        worksheet_name=regular_results.select(pl.col("Register No").str.extract(student_id_pattern, group_index=3)).item(0,0)
 
-        return (worksheet_name, max_width, normal_results, supply_results)
+        return (worksheet_name, max_width, regular_results, supply_results)
 
     except Exception as e:
         print(f"Error in creating Result Partitions {e}")
@@ -78,6 +80,7 @@ def create_table_partitions(table):
         print("> Creating Title Partion  ...")
         if "Generated" in table[0, 0]:
             title = table[0, 0]
+            title = title.partition("[Full")[0] #remove everything from "(Gen", including it
         else:
             title = None
 
@@ -89,26 +92,10 @@ def create_table_partitions(table):
             .alias("col1")
         ).drop(["0","1"])
         course_codes = temp_table.filter(pl.col("col1").str.contains(course_code_name_regex))
+        course_codes = course_codes.rename({"col1": "Courses"})
 
         print("> Creating Result Partition  ...")
-        worksheet_name, max_width, normal_results, supply_results = create_results_partitions(table, course_code_regex  )
-
-        # normal_results.write_excel(
-        #     workbook="normaltest.xlsx",
-        #     # worksheet=f"{depart_names_list[i]}",
-        #     autofit=True,
-        #     autofilter=None,
-        #     include_header=True,
-        #     table_style="Table Style Light 8"
-        # )
-        # # supply_results.write_excel(
-        #     workbook="supplytest.xlsx",
-        #     # worksheet=f"{depart_names_list[i]}",
-        #     autofit=True,
-        #     autofilter=None,
-        #     include_header=True,
-        #     table_style="Table Style Light 8"
-        # )
+        worksheet_name, max_width, regular_results, supply_results = create_results_partitions(table, course_code_regex  )
 
         return(
             {
@@ -117,7 +104,7 @@ def create_table_partitions(table):
                 "MaxWidth": max_width,
                 "Subjects": course_codes,
                 "SupplyResults": supply_results,
-                "NormalResults": normal_results,
+                "RegularResults": regular_results,
             }
         )
 
@@ -125,36 +112,18 @@ def create_table_partitions(table):
         print(f"Error in Creating Table Partitions: {e}")
 
 
-#TODO output setakkanam(combine the different generated tables and create mannually for more modification) and analyze table TT
-def output_to_excel(departs_list, output_path="output.xlsx"):
-    global depart_names_list
-    try:
-        with xlsxwriter.Workbook(output_path) as workbook:
-            for i, df in enumerate(departs_list):
-                df.write_excel(
-                    workbook=workbook,
-                    # worksheet=f"{depart_names_list[i]}",
-                    autofit=True,
-                    autofilter=None,
-                    include_header=True,
-                    table_style="Table Style Light 8"
-                )
-        print(output_path)
-        return output_path
-
-    except Exception as e:
-        print(f"Error in Exporting to Excel: {e}")
-        return None
-
 def process_pdf(pdf_path):
     start_time = time.time()
     main_title = extract_main_title(pdf_path)
     raw_table = extract_pdf_tables(pdf_path)
     department_tables = split_departments(raw_table)
     department_tables = [create_table_partitions(table) for table in department_tables]
-    print(department_tables)
-    print(f"Time Taken: {round(time.time() - start_time,2)}")
+    # print(department_tables)
+    # for dict in department_tables:
+    #     print(dict,"\n")
+    # print(f"Time Taken: {round(time.time() - start_time,2)}")
 
+    outputExcel.output_excel(department_tables)
 
 # Run everything with one function
 if __name__ == "__main__":

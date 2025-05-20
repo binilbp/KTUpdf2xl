@@ -4,3 +4,4 @@ venv
 *.xlsx
 *.nix
 *.lock
+__pycache__
