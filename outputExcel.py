@@ -90,7 +90,7 @@ def output_excel(main_title, output_list, output_path="output.xlsx"):
                 0,                              #start col
                 row_position,                   #end row
                 table.get("MaxWidth") - 1,      #end col(index start form 0)
-                "Supply Students",              #merge cell string
+                "Supply Results",               #merge cell string
                 title_format                    #merge cell format
             )
 
