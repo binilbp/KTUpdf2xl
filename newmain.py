@@ -50,6 +50,26 @@ def split_departments(big_table):
         print(f"Error in Department Splitting: {e}")
 
 
+def add_arrears_column(table, course_code_list):
+    # creating Arrears column
+    if "Arrears" not in table.columns:
+        table = table.with_columns(
+            pl.lit("").alias("Arrears"),
+        )
+    for course in course_code_list:
+            table = table.with_columns(
+                #F Absent TBP* Withheld FE are all considered arrears
+                pl.when(pl.col(course).str.contains("F|Absent|TBP\\*|Withheld|FE")) #re to idenitfy the strings
+                .then(pl.concat_str([pl.col("Arrears"),pl.lit(course)],separator=" ").str.strip_chars())
+                .otherwise(
+                    pl.when(pl.col(course).str.contains("Debarred"))
+                    .then(pl.concat_str([pl.col("Arrears"),pl.lit("Debarred")],separator=" "))
+                    .otherwise(pl.col("Arrears"))
+                )
+                .alias("Arrears")
+           )
+    return table
+
 def create_results_partitions(table, course_code_regex):
     student_id_pattern = r"([A-Z]+)(\d{2})([A-Z]+)(\d+)"
     try:
@@ -62,15 +82,18 @@ def create_results_partitions(table, course_code_regex):
                 .alias(course_code)
             )
         table = table.drop(["1"])
+        table = add_arrears_column(table, course_code_list)
         table = table.rename({"0": "Register No"})
         table = table.with_columns([
             pl.col("Register No").str.extract(student_id_pattern, group_index=1).alias("prefix"), #later using to categorize
-            pl.col("Register No").str.extract(student_id_pattern, group_index=2).cast(pl.Int32).alias("batch_year"), #group_index 2 means 2nd value in regex exp
+            pl.col("Register No").str.extract(student_id_pattern, group_index=2).cast(pl.Int32).alias("batch_year"),
+            #group_index 2 means 2nd value in regex exp
         ]).sort("batch_year")
         current_batch_year = table.select(pl.col("batch_year").max()).item()
 
         #supply_results
-        supply_results = table.filter(pl.col("batch_year").cast(pl.Int32)!=current_batch_year).drop(["prefix","batch_year"])
+        #Arrears in supply_results mess up the column width for regular_result, hence removing Arrears in next line :(
+        supply_results = table.filter(pl.col("batch_year").cast(pl.Int32)!=current_batch_year).drop(["prefix","batch_year","Arrears"])
         supply_results = supply_results[[s.name for s in supply_results if not (s.null_count() == supply_results.height)]]      #drop null only columns
 
         #regular_results
@@ -78,7 +101,7 @@ def create_results_partitions(table, course_code_regex):
         regular_results = regular_results[[s.name for s in regular_results if not (s.null_count() == regular_results.height)]]  #drop null only columns
 
         #max_width is used to specify the column range for merge cell function in outputExcel; max(column number of (regular or supply results))
-        max_width = max(regular_results.shape[1],supply_results.shape[1])
+        max_width = max(regular_results.shape[1],supply_results.shape[1])   #df.shape[1]=number of cols for df
         worksheet_name=regular_results.select(pl.col("Register No").str.extract(student_id_pattern, group_index=3)).item(0,0)
         return (worksheet_name, max_width, regular_results, supply_results)
     except Exception as e:

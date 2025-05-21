@@ -26,7 +26,7 @@ def output_excel(main_title, output_list, output_path="output.xlsx"):
     })
 
     table_format = workbook.add_format({
-        'align': 'center',
+        'align': 'left',
         'valign': 'vcenter',
         'top': 1,
         'bottom': 1,
@@ -102,8 +102,8 @@ def output_excel(main_title, output_list, output_path="output.xlsx"):
                 position =(row_position, 0),
                 column_formats={pl.selectors.all(): table_format},
                 autofilter = False,
-                header_format = {'valign':'vcenter', 'border':1},
-                # autofit = True
+                header_format = {'bold':True, 'valign':'vcenter', 'border':1},
+                autofit = True
             )
             row_position += len(table.get("SupplyResults"))+3
 
@@ -125,11 +125,13 @@ def output_excel(main_title, output_list, output_path="output.xlsx"):
                 position =(row_position, 0),
                 column_formats={pl.selectors.all(): table_format},
                 autofilter = False,
-                header_format = {'border':1, 'valign':'vcenter'},
+                header_format = {'bold':True, 'border':1, 'valign':'vcenter'},
                 # autofit = True
             )
 
         worksheet.autofit()
+        #mounuse note that max_width is only availble for xlsxwriter >= 3.2.1 ,so set that
+        #and kutta also maybe u need set_pixel during setting autofit
         worksheet.repeat_rows(print_repeat_row) #repeats the row in each new page (for printing)
         worksheet.fit_to_pages(1, 0)            #one page wide scaling (fit all col in page width for printing)
         worksheet.set_landscape()
