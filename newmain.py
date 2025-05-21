@@ -16,7 +16,7 @@ def extract_main_title(pdf_path):
     for i, line in enumerate(lines):
         if "APJ ABDUL KALAM TECHNOLOGICAL UNIVERSITY" in line:
             main_title =lines[i : i + 4]                                     # grab this plus the next 3 lines
-            return [main_title[0], main_title[-2], main_title[-1]]           # only return the relevant info
+            return ( [main_title[0], main_title[-2], main_title[-1]])           # only return the relevant info
             # return "\n".join(lines[i : i + 4])
     return None
 
@@ -119,11 +119,7 @@ def process_pdf(pdf_path):
     department_tables = split_departments(raw_table)
     department_tables = [create_table_partitions(table) for table in department_tables]
     # print(department_tables)
-    # for dict in department_tables:
-    #     print(dict,"\n")
-    # print(f"Time Taken: {round(time.time() - start_time,2)}")
-
-    outputExcel.output_excel(department_tables)
+    outputExcel.output_excel(main_title = main_title, output_list=department_tables, output_path="output.xlsx")
 
 # Run everything with one function
 if __name__ == "__main__":
