@@ -1,5 +1,4 @@
 import logging
-from re import I
 import outputExcel
 from tabula import read_pdf
 import time
@@ -9,22 +8,31 @@ import pdfplumber
 
 
 def extract_main_title(pdf_path):
-    print("> Extracting Main Title ...")
-    logging.getLogger("pdfminer").setLevel(logging.ERROR)                    # filter the specific warning about CropBox
-    with pdfplumber.open(pdf_path) as pdf:
-        lines = pdf.pages[0].extract_text().splitlines()
-    for i, line in enumerate(lines):
-        if "APJ ABDUL KALAM TECHNOLOGICAL UNIVERSITY" in line:
-            main_title =lines[i : i + 4]                                     # grab this plus the next 3 lines
-            return ( [main_title[0], main_title[-2], main_title[-1]])           # only return the relevant info
-            # return "\n".join(lines[i : i + 4])
-    return None
+    try:
+        print("> Extracting Main Title ...")
+        logging.getLogger("pdfminer").setLevel(logging.ERROR)                    # filter the specific warning about CropBox
+        with pdfplumber.open(pdf_path) as pdf:
+            lines = pdf.pages[0].extract_text().splitlines()
+        for i, line in enumerate(lines):
+            if "APJ ABDUL KALAM TECHNOLOGICAL UNIVERSITY" in line:
+                main_title =lines[i : i + 4]                                     # grab this plus the next 3 lines
+                return ( [main_title[0], main_title[-2], main_title[-1]])        # only return the relevant info
+                # return "\n".join(lines[i : i + 4])
+        return None
+    except Exception as e:
+        print(f'Error in Main Title Extraction: {e}')
 
 
 def extract_pdf_tables(pdf_path):
     try:
         print("> Starting Table Extraction ....")
-        tables_list = read_pdf(pdf_path, pages="all", multiple_tables=True, lattice=True, pandas_options={'header': None})
+        tables_list = read_pdf(
+            pdf_path,
+            pages="all",
+            multiple_tables=True,
+            lattice=True,
+            pandas_options={'header': None}
+        )
         return pl.concat([pl.from_pandas(table) for table in tables_list],how="diagonal")
     except Exception as e:
         print(f'Error in Table Extraction: {e}')
@@ -33,7 +41,7 @@ def extract_pdf_tables(pdf_path):
 def split_departments(big_table):
     try:
         print("> Splitting Departments ...")
-        boolean_mask = big_table["0"].str.contains("Generated")
+        boolean_mask = big_table["0"].str.contains("Generated")             #boolean_mask is a pl series
         groups = boolean_mask.cum_sum()
         big_table = big_table.with_columns(pl.Series("groups", groups))
         return [depart.drop("groups") for _, depart in big_table.group_by("groups") if depart.height > 1]
@@ -60,15 +68,19 @@ def create_results_partitions(table, course_code_regex):
             pl.col("Register No").str.extract(student_id_pattern, group_index=2).cast(pl.Int32).alias("batch_year"), #group_index 2 means 2nd value in regex exp
         ]).sort("batch_year")
         current_batch_year = table.select(pl.col("batch_year").max()).item()
-        max_width = len(course_code_list) + 1
+
+        #supply_results
         supply_results = table.filter(pl.col("batch_year").cast(pl.Int32)!=current_batch_year).drop(["prefix","batch_year"])
-        supply_results = supply_results[[s.name for s in supply_results if not (s.null_count() == supply_results.height)]] #drop null only columns
+        supply_results = supply_results[[s.name for s in supply_results if not (s.null_count() == supply_results.height)]]      #drop null only columns
+
+        #regular_results
         regular_results = table.filter(pl.col("batch_year")==current_batch_year).drop(["prefix","batch_year"])
-        regular_results = regular_results[[s.name for s in regular_results if not (s.null_count() == regular_results.height)]] #drop null only columns
+        regular_results = regular_results[[s.name for s in regular_results if not (s.null_count() == regular_results.height)]]  #drop null only columns
+
+        #max_width is used to specify the column range for merge cell function in outputExcel; max(column number of (regular or supply results))
+        max_width = max(regular_results.shape[1],supply_results.shape[1])
         worksheet_name=regular_results.select(pl.col("Register No").str.extract(student_id_pattern, group_index=3)).item(0,0)
-
         return (worksheet_name, max_width, regular_results, supply_results)
-
     except Exception as e:
         print(f"Error in creating Result Partitions {e}")
 
