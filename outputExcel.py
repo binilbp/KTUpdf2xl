@@ -64,7 +64,7 @@ def output_excel(main_title, output_list, output_path="output.xlsx"):
                 row_position,                   #end row
                 department.get("MaxWidth") - 1,      #end col(index start form 0)
                 line,                           #merge cell string
-                title_format                    #merge cell format
+                main_title_format                    #merge cell format
             )
             row_position += 1
 
@@ -203,7 +203,7 @@ def output_excel(main_title, output_list, output_path="output.xlsx"):
 
 
         worksheet.set_column(0, 0, 15)
-        worksheet.set_column(1, department["MaxWidth"], 7)
+        worksheet.set_column(1, department["MaxWidth"], 8)
         #mounuse note that max_width is only availble for xlsxwriter >= 3.2.1 ,so set that
         #and kutta also maybe u need set_pixel during setting autofit
         worksheet.repeat_rows(print_repeat_row) #repeats the row in each new page (for printing)

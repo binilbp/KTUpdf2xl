@@ -5,24 +5,32 @@ def analyze_courses(table, courses):
     fail_count_list =[]
     pass_percentage_list =[]
 
-    a_plus_count_list=[];b_plus_count_list=[];c_plus_count_list=[];d_plus_count_list=[];e_plus_count_list=[]
-    a_count_list=[];b_count_list=[];c_count_list=[];d_count_list=[];e_count_list=[];f_count_list=[]
+    s_count_list=[];a_plus_count_list=[];b_plus_count_list=[];c_plus_count_list=[]
+    a_count_list=[];b_count_list=[];c_count_list=[];d_count_list=[];p_count_list=[];f_count_list=[]
 
     for course in courses:
         students_count = table.select((pl.col(course).is_not_null()).arg_true()).count().item()
         fail_count = table.select((pl.col(course).str.contains("F|Absent|TBP\\*|Withheld|FE")).arg_true()).count().item()
 
-        a_plus_count = table.select((pl.col(course).str.contains("A+")).arg_true()).count().item()
-        a_count = table.select((pl.col(course).str.contains("A")).arg_true()).count().item()
-        b_plus_count = table.select((pl.col(course).str.contains("B+")).arg_true()).count().item()
-        b_count = table.select((pl.col(course).str.contains("B")).arg_true()).count().item()
-        c_plus_count = table.select((pl.col(course).str.contains("C+")).arg_true()).count().item()
-        c_count = table.select((pl.col(course).str.contains("C")).arg_true()).count().item()
-        d_plus_count = table.select((pl.col(course).str.contains("D+")).arg_true()).count().item()
-        d_count = table.select((pl.col(course).str.contains("D")).arg_true()).count().item()
-        e_plus_count = table.select((pl.col(course).str.contains("E+")).arg_true()).count().item()
-        e_count = table.select((pl.col(course).str.contains("E")).arg_true()).count().item()
-        f_count = table.select((pl.col(course).str.contains("F")).arg_true()).count().item()
+        s_count = table.filter(pl.col(course)=="S").height
+        a_plus_count = table.filter(pl.col(course)=="A+").height
+        a_count = table.filter(pl.col(course)=="A").height
+        b_plus_count = table.filter(pl.col(course)=="B+").height
+        b_count = table.filter(pl.col(course)=="B").height
+        c_plus_count = table.filter(pl.col(course)=="C+").height
+        c_count = table.filter(pl.col(course)=="C").height
+        d_count = table.filter(pl.col(course)=="D").height
+        p_count = table.filter(pl.col(course)=="P").height
+        f_count = table.filter(pl.col(course)=="F").height
+        # a_plus_count = table.select((pl.col(course).str.contains("A+")).arg_true()).count().item()
+        # a_count = table.select((pl.col(course).str.contains(r"\bA\b")).arg_true()).count().item()
+        # b_plus_count = table.select((pl.col(course).str.contains("B+")).arg_true()).count().item()
+        # b_count = table.select((pl.col(course).str.contains(r"\bB\b")).arg_true()).count().item() #exact match of B
+        # c_plus_count = table.select((pl.col(course).str.contains("C+")).arg_true()).count().item()
+        # c_count = table.select((pl.col(course).str.contains((r"\bC\b")).arg_true()).count().item()
+        # d_count = table.select((pl.col(course).str.contains("D")).arg_true()).count().item()
+        # p_count = table.select((pl.col(course).str.contains("P")).arg_true()).count().item()
+        # f_count = table.select((pl.col(course).str.contains("F")).arg_true()).count().item()
 
         pass_count = students_count - fail_count
         pass_percentage =  round((pass_count/students_count)*100, 2)
@@ -32,10 +40,10 @@ def analyze_courses(table, courses):
         fail_count_list.append(fail_count)
         pass_percentage_list.append(f"{pass_percentage}%")
 
-        a_plus_count_list.append(a_plus_count);b_plus_count_list.append(b_plus_count)
-        c_plus_count_list.append(c_plus_count);d_plus_count_list.append(d_plus_count);e_plus_count_list.append(e_plus_count)
-        a_count_list.append(a_count);b_count_list.append(b_count);c_count_list.append(c_count);d_count_list.append(d_count)
-        e_count_list.append(e_count);f_count_list.append(f_count)
+        s_count_list.append(s_count); a_plus_count_list.append(a_plus_count); b_plus_count_list.append(b_plus_count)
+        c_plus_count_list.append(c_plus_count)
+        a_count_list.append(a_count); b_count_list.append(b_count); c_count_list.append(c_count); d_count_list.append(d_count)
+        p_count_list.append(p_count); f_count_list.append(f_count)
 
         pass_percentage = round((pass_count/students_count)*100, 2)
     courses_analysis=pl.DataFrame(
@@ -44,16 +52,16 @@ def analyze_courses(table, courses):
             "Pass": pass_count_list,
             "Fail": fail_count_list,
             "Pass %": pass_percentage_list,
+            "S": s_count_list,
             "A+": a_plus_count_list,
             "A": a_count_list,
             "B+": b_plus_count_list,
             "B": b_count_list,
             "C+": c_plus_count_list,
-            "C": d_count_list,
-            "D+": d_plus_count_list,
+            "C": c_count_list,
             "D": d_count_list,
-            "E+": e_plus_count_list,
-            "E": e_count_list
+            "F": f_count_list,
+            "P": p_count_list
         }
     )
     return courses_analysis
