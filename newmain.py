@@ -1,5 +1,6 @@
 import logging
 import outputExcel
+import analyzeTable
 from tabula import read_pdf
 import time
 import polars as pl
@@ -70,6 +71,7 @@ def add_arrears_column(table, course_code_list):
            )
     return table
 
+
 def create_results_partitions(table, course_code_regex):
     student_id_pattern = r"([A-Z]+)(\d{2})([A-Z]+)(\d+)"
     try:
@@ -91,18 +93,19 @@ def create_results_partitions(table, course_code_regex):
         ]).sort("batch_year")
         current_batch_year = table.select(pl.col("batch_year").max()).item()
 
-        #supply_results
+        print("    Creating Supply Results  ...")
         #Arrears in supply_results mess up the column width for regular_result, hence removing Arrears in next line :(
         supply_results = table.filter(pl.col("batch_year").cast(pl.Int32)!=current_batch_year).drop(["prefix","batch_year","Arrears"])
         supply_results = supply_results[[s.name for s in supply_results if not (s.null_count() == supply_results.height)]]      #drop null only columns
 
-        #regular_results
+        print("    Creating Regular Results  ...")
         regular_results = table.filter(pl.col("batch_year")==current_batch_year).drop(["prefix","batch_year"])
         regular_results = regular_results[[s.name for s in regular_results if not (s.null_count() == regular_results.height)]]  #drop null only columns
 
         #max_width is used to specify the column range for merge cell function in outputExcel; max(column number of (regular or supply results))
         max_width = max(regular_results.shape[1],supply_results.shape[1])   #df.shape[1]=number of cols for df
         worksheet_name=regular_results.select(pl.col("Register No").str.extract(student_id_pattern, group_index=3)).item(0,0)
+
         return (worksheet_name, max_width, regular_results, supply_results)
     except Exception as e:
         print(f"Error in creating Result Partitions {e}")
@@ -112,14 +115,14 @@ def create_table_partitions(table):
     course_code_regex = (r"^[A-Z]{3}\d{3}$")
     course_code_name_regex = r'^([A-Z]{3}\d{3})\s*-\s*(.+)$'
     try:
-        print("> Creating Title Partion  ...")
+        print("\n> Creating Title ...")
         if "Generated" in table[0, 0]:
             title = table[0, 0]
             title = title.partition("[Full")[0] #remove everything from "(Gen", including it
         else:
             title = None
 
-        print("> Creating Course Codes Partition  ...")
+        print("> Creating Course Codes ...")
         temp_table = table.with_columns(
             pl.when(pl.col("0").str.contains(course_code_regex))
             .then(pl.concat_str([pl.col("0"),pl.col("1")],separator=" - ",))                           #example: "CST304 - COMPILER DESIGN"
@@ -129,8 +132,19 @@ def create_table_partitions(table):
         course_codes = temp_table.filter(pl.col("col1").str.contains(course_code_name_regex))
         course_codes = course_codes.rename({"col1": "Courses"})
 
-        print("> Creating Result Partition  ...")
+        print("> Creating Result Partitions  ...")
         worksheet_name, max_width, regular_results, supply_results = create_results_partitions(table, course_code_regex  )
+
+        print("> Creating Analyzis Partitions  ...")
+        if regular_results is not None:
+            regular_analysis = analyzeTable.analyze_table(regular_results, type="Regular")
+        else :
+            regular_analysis = None
+
+        if supply_results is not None:
+            supply_analysis = analyzeTable.analyze_table(supply_results, type="Supply")
+        else :
+            supply_analysis = None
 
         return(
             {
@@ -140,6 +154,8 @@ def create_table_partitions(table):
                 "Subjects": course_codes,
                 "SupplyResults": supply_results,
                 "RegularResults": regular_results,
+                "SupplyAnalysis": supply_analysis,
+                "RegularAnalysis": regular_analysis
             }
         )
 
@@ -153,8 +169,12 @@ def process_pdf(pdf_path):
     raw_table = extract_pdf_tables(pdf_path)
     department_tables = split_departments(raw_table)
     department_tables = [create_table_partitions(table) for table in department_tables]
-    # print(department_tables)
+    print(department_tables)
     outputExcel.output_excel(main_title = main_title, output_list=department_tables, output_path="output.xlsx")
+
+    time_taken = round(time.time() - start_time, 2)
+    print(f"--Total time taken = {time_taken}s ")
+    print("> Successfully Exported 😉")
 
 # Run everything with one function
 if __name__ == "__main__":
