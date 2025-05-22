@@ -102,11 +102,9 @@ def create_results_partitions(table, course_code_regex):
         regular_results = table.filter(pl.col("batch_year")==current_batch_year).drop(["prefix","batch_year"])
         regular_results = regular_results[[s.name for s in regular_results if not (s.null_count() == regular_results.height)]]  #drop null only columns
 
-        #max_width is used to specify the column range for merge cell function in outputExcel; max(column number of (regular or supply results))
-        max_width = max(regular_results.shape[1],supply_results.shape[1])   #df.shape[1]=number of cols for df
         worksheet_name=regular_results.select(pl.col("Register No").str.extract(student_id_pattern, group_index=3)).item(0,0)
 
-        return (worksheet_name, max_width, regular_results, supply_results)
+        return (worksheet_name, regular_results, supply_results)
     except Exception as e:
         print(f"Error in creating Result Partitions {e}")
 
@@ -130,10 +128,10 @@ def create_table_partitions(table):
             .alias("col1")
         ).drop(["0","1"])
         course_codes = temp_table.filter(pl.col("col1").str.contains(course_code_name_regex))
-        course_codes = course_codes.rename({"col1": "Courses"})
+        course_codes = course_codes["col1"].to_list()
 
         print("> Creating Result Partitions  ...")
-        worksheet_name, max_width, regular_results, supply_results = create_results_partitions(table, course_code_regex  )
+        worksheet_name, regular_results, supply_results = create_results_partitions(table, course_code_regex  )
 
         print("> Creating Analyzis Partitions  ...")
         if regular_results is not None:
@@ -150,7 +148,7 @@ def create_table_partitions(table):
             {
                 "Department": worksheet_name,
                 "Title": title,
-                "MaxWidth": max_width,
+                "MaxWidth": 14, #14 as per the number of grades to display
                 "Subjects": course_codes,
                 "SupplyResults": supply_results,
                 "RegularResults": regular_results,

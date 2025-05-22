@@ -41,8 +41,8 @@ def analyze_courses(table, courses):
     courses_analysis=pl.DataFrame(
         {
             "Course": courses,
-            "Pass Count": pass_count_list,
-            "Fail Count": fail_count_list,
+            "Pass": pass_count_list,
+            "Fail": fail_count_list,
             "Pass %": pass_percentage_list,
             "A+": a_plus_count_list,
             "A": a_count_list,
@@ -71,7 +71,7 @@ def analyze_table(table, type: str):
         total_fail_count = table.select((pl.col("Arrears").str.len_bytes() > 2).arg_true()).count().item()
         total_pass_count = total_students_count - total_fail_count
         total_pass_percentage = round((total_pass_count/total_students_count)*100, 2)
-        print(f"Total:{total_students_count}, Fails:{total_fail_count}, Pass:{total_pass_count}, Pass percent:{total_pass_percentage}")
+        general_info = [total_students_count,total_pass_count,total_fail_count,total_pass_percentage]
 
         return{
             "StudentsCount": total_students_count,
