@@ -1,6 +1,7 @@
 import xlsxwriter
 import polars as pl
 
+
 def output_excel(main_title, output_list, output_path="output.xlsx"):
     workbook = xlsxwriter.Workbook(output_path)
     workbook.set_properties({

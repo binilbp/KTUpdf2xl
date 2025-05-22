@@ -169,7 +169,7 @@ def process_pdf(pdf_path):
     raw_table = extract_pdf_tables(pdf_path)
     department_tables = split_departments(raw_table)
     department_tables = [create_table_partitions(table) for table in department_tables]
-    print(department_tables)
+    # print(department_tables)
     outputExcel.output_excel(main_title = main_title, output_list=department_tables, output_path="output.xlsx")
 
     time_taken = round(time.time() - start_time, 2)
