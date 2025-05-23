@@ -175,7 +175,7 @@ def analyze_table(table):
         df_analyzis_table = pl.DataFrame([analyzis_list], strict=False)
 
         print(df_analyzis_table)
-        return table            
+        return table
 
     except Exception as e:
         print(f"Error in Analyzing Tables: {e}")
@@ -187,11 +187,11 @@ def output_to_excel(departs_list, output_path="output.xlsx"):
         with xlsxwriter.Workbook(output_path) as workbook:
             for i, df in enumerate(departs_list):
                 df.write_excel(
-                    workbook=workbook, 
-                    worksheet=f"{depart_names_list[i]}", 
-                    autofit=True, 
-                    autofilter=None, 
-                    include_header=True, 
+                    workbook=workbook,
+                    worksheet=f"{depart_names_list[i]}",
+                    autofit=True,
+                    autofilter=None,
+                    include_header=True,
                     table_style="Table Style Light 8"
                 )
         print(output_path)

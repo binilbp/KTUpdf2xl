@@ -1,4 +1,5 @@
 import polars as pl
+import re
 
 def analyze_courses(table, courses):
     pass_count_list =[]
@@ -22,19 +23,9 @@ def analyze_courses(table, courses):
         d_count = table.filter(pl.col(course)=="D").height
         p_count = table.filter(pl.col(course)=="P").height
         f_count = table.filter(pl.col(course)=="F").height
-        # a_plus_count = table.select((pl.col(course).str.contains("A+")).arg_true()).count().item()
-        # a_count = table.select((pl.col(course).str.contains(r"\bA\b")).arg_true()).count().item()
-        # b_plus_count = table.select((pl.col(course).str.contains("B+")).arg_true()).count().item()
-        # b_count = table.select((pl.col(course).str.contains(r"\bB\b")).arg_true()).count().item() #exact match of B
-        # c_plus_count = table.select((pl.col(course).str.contains("C+")).arg_true()).count().item()
-        # c_count = table.select((pl.col(course).str.contains((r"\bC\b")).arg_true()).count().item()
-        # d_count = table.select((pl.col(course).str.contains("D")).arg_true()).count().item()
-        # p_count = table.select((pl.col(course).str.contains("P")).arg_true()).count().item()
-        # f_count = table.select((pl.col(course).str.contains("F")).arg_true()).count().item()
 
         pass_count = students_count - fail_count
         pass_percentage =  round((pass_count/students_count)*100, 2)
-
 
         pass_count_list.append(pass_count)
         fail_count_list.append(fail_count)
@@ -68,12 +59,14 @@ def analyze_courses(table, courses):
 
 
 def analyze_table(table, type: str):
-    # table have no null row, finding the total number of rows using shape[0] gives number of students
-    total_students_count = table.shape[0]
-    courses = table.columns[1:-1] #avoid the first("RegisterNO") & last("Arrears") column names
+    course_code_regex = (r"^[A-Z]{3}\d{3}$")
+    #getting only the courses from the table column names
+    courses = [column for column in table.columns if re.fullmatch(course_code_regex, column)]
     courses_analysis=analyze_courses(table, courses)
 
     if type == "Regular" :
+        # table have no null row, finding the total number of rows using shape[0] gives number of students
+        total_students_count = table.shape[0]
         #failed students have arrears in the "Arrear" col of table --> string len in Arrears will be > 1
         #(here given > 2 just for safety)--> get the count of rows where this is true as scalar value
         total_fail_count = table.select((pl.col("Arrears").str.len_bytes() > 2).arg_true()).count().item()

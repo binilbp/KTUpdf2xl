@@ -53,11 +53,16 @@ def split_departments(big_table):
 
 def add_arrears_column(table, course_code_list):
     # creating Arrears column
-    if "Arrears" not in table.columns:
-        table = table.with_columns(
-            pl.lit("").alias("Arrears"),
-        )
-    for course in course_code_list:
+    try:
+        if "Arr Count" not in table.columns:
+            table = table.with_columns(
+                pl.lit(0).alias("Arr Count"),
+            )
+        if "Arrears" not in table.columns:
+            table = table.with_columns(
+                pl.lit("").alias("Arrears"),
+            )
+        for course in course_code_list:
             table = table.with_columns(
                 #F Absent TBP* Withheld FE are all considered arrears
                 pl.when(pl.col(course).str.contains("F|Absent|TBP\\*|Withheld|FE")) #re to idenitfy the strings
@@ -66,10 +71,23 @@ def add_arrears_column(table, course_code_list):
                     pl.when(pl.col(course).str.contains("Debarred"))
                     .then(pl.concat_str([pl.col("Arrears"),pl.lit("Debarred")],separator=" "))
                     .otherwise(pl.col("Arrears"))
-                )
-                .alias("Arrears")
-           )
-    return table
+                ).alias("Arrears")
+            )
+
+            table = table.with_columns(
+                #F Absent TBP* Withheld FE are all considered arrears
+                pl.when(pl.col(course).str.contains("F|Absent|TBP\\*|Withheld|FE")) #re to idenitfy the strings
+                .then(pl.col("Arr Count")+1)
+                .otherwise(pl.col("Arr Count")).alias("Arr Count")
+            )
+        # #now this is a cool way of inserting a new column at specifed index, while also creating the new column based on an expression
+        # but this doesnt work here, atleast dont forget the method
+        # arrear_count_expression = (pl.col("Arrears").str.strip_chars().str.split(" ").list.len()).alias("Arrears Count")
+        # arrear_count_position = table.get_column_index("Arrears")
+        # table.insert_column(arrear_count_position, arrear_count_expression)
+        return table
+    except Exception as e:
+        print(f"Error in Adding Arrears: {e}")
 
 
 def create_results_partitions(table, course_code_regex):
@@ -95,7 +113,7 @@ def create_results_partitions(table, course_code_regex):
 
         print("    Creating Supply Results  ...")
         #Arrears in supply_results mess up the column width for regular_result, hence removing Arrears in next line :(
-        supply_results = table.filter(pl.col("batch_year").cast(pl.Int32)!=current_batch_year).drop(["prefix","batch_year","Arrears"])
+        supply_results = table.filter(pl.col("batch_year").cast(pl.Int32)!=current_batch_year).drop(["prefix","batch_year","Arrears"])#,"Arrears Count"])
         supply_results = supply_results[[s.name for s in supply_results if not (s.null_count() == supply_results.height)]]      #drop null only columns
 
         print("    Creating Regular Results  ...")
@@ -158,7 +176,7 @@ def create_table_partitions(table):
         )
 
     except Exception as e:
-        print(f"Error in Creating Table Partitions: {e}")
+        print(f"Error : {e}")
 
 
 def process_pdf(pdf_path):
@@ -167,12 +185,11 @@ def process_pdf(pdf_path):
     raw_table = extract_pdf_tables(pdf_path)
     department_tables = split_departments(raw_table)
     department_tables = [create_table_partitions(table) for table in department_tables]
-    # print(department_tables)
+    print(department_tables)
     outputExcel.output_excel(main_title = main_title, output_list=department_tables, output_path="output.xlsx")
 
     time_taken = round(time.time() - start_time, 2)
     print(f"--Total time taken = {time_taken}s ")
-    print("> Successfully Exported 😉")
 
 # Run everything with one function
 if __name__ == "__main__":
