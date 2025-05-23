@@ -55,7 +55,11 @@ def output_excel(main_title, output_list, output_path="output.xlsx"):
         })
         for department in output_list:
             #setting worksheet name
-            worksheet_name = department.get("Department")
+            if department["Department"] is not None:
+                worksheet_name = department.get("Department")
+            else:
+                print("      Carefull !! Department name empty!!")
+                #actually this condition will raise an error but just for a clear warning the above print is given
             worksheet = workbook.add_worksheet(worksheet_name)
             row_position = 0
             for line in main_title:

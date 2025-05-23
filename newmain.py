@@ -115,13 +115,21 @@ def create_results_partitions(table, course_code_regex):
         #Arrears in supply_results mess up the column width for regular_result, hence removing Arrears in next line :(
         supply_results = table.filter(pl.col("batch_year").cast(pl.Int32)!=current_batch_year).drop(["prefix","batch_year","Arrears"])#,"Arrears Count"])
         supply_results = supply_results[[s.name for s in supply_results if not (s.null_count() == supply_results.height)]]      #drop null only columns
+        if supply_results.is_empty():  #To handle case with no supply students(actually WooW for an engineering dept !!)
+            supply_results = None
+            print("      Carefull !! supply results empty!!")
 
         print("    Creating Regular Results  ...")
         regular_results = table.filter(pl.col("batch_year")==current_batch_year).drop(["prefix","batch_year"])
         regular_results = regular_results[[s.name for s in regular_results if not (s.null_count() == regular_results.height)]]  #drop null only columns
+        if regular_results.is_empty():  #To handle case with no supply students(actually WooW for an enigineering dept !!)
+            regular_results = None
+            print("      Carefull !! regular results empty!!")
+            #case to handle if only supply and no regular(but i mean wtf?..only supply? anyway gotta do what u have to do)
+            worksheet_name=supply_results.select(pl.col("Register No").str.extract(student_id_pattern, group_index=3)).item(0,0)
+            return (worksheet_name, regular_results, supply_results)
 
         worksheet_name=regular_results.select(pl.col("Register No").str.extract(student_id_pattern, group_index=3)).item(0,0)
-
         return (worksheet_name, regular_results, supply_results)
     except Exception as e:
         print(f"Error in creating Result Partitions {e}")
@@ -185,7 +193,7 @@ def process_pdf(pdf_path):
     raw_table = extract_pdf_tables(pdf_path)
     department_tables = split_departments(raw_table)
     department_tables = [create_table_partitions(table) for table in department_tables]
-    print(department_tables)
+    # print(department_tables)
     outputExcel.output_excel(main_title = main_title, output_list=department_tables, output_path="output.xlsx")
 
     time_taken = round(time.time() - start_time, 2)
@@ -193,4 +201,4 @@ def process_pdf(pdf_path):
 
 # Run everything with one function
 if __name__ == "__main__":
-    process_pdf("./marks.pdf")
+    process_pdf("./marks3.pdf")
