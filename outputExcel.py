@@ -1,6 +1,6 @@
 import xlsxwriter
 import polars as pl
-
+from pathlib import Path
 
 def output_excel(main_title, output_list, output_path="output.xlsx"):
     try:
@@ -215,5 +215,6 @@ def output_excel(main_title, output_list, output_path="output.xlsx"):
         workbook.close()
 
         print("> Successfully Exported 😉")
+        return Path(output_path) #Return as the FilePath object to reduce type issues
     except Exception as e:
         print(f"\nError in Exporting the Excel {e}")

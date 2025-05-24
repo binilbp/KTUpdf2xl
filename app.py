@@ -44,9 +44,11 @@ async def process_pdf_api(file: UploadFile = File(...), background_tasks: Backgr
         shutil.copyfileobj(file.file, buffer)
 
     # Process and get output file
-    output_file = process_pdf(file_path)
+    output_file = process_pdf(file_path) #final processed FilePath
+    print(f"[DEBUG] Output from process_pdf: {output_file}")
 
     if output_file and output_file.exists():
+        print(f"[DEBUG] File exists: {output_file}")
         # Schedule cleanup in the background
         background_tasks.add_task(cleanup_files, file_path, output_file)
 
@@ -56,4 +58,5 @@ async def process_pdf_api(file: UploadFile = File(...), background_tasks: Backgr
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
     else:
+        print(f"[ERROR] File missing or invalid: {output_file}")
         raise HTTPException(status_code=500, detail="Processing failed")
