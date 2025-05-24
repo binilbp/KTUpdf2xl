@@ -1,7 +1,9 @@
-output.xlsx
-processed_output.xlsx
 venv
 .venv
-marks.pdf
-marks2.pdf
-marks3.pdf
+*.pdf
+*.xlsx
+*.xls
+*.xlsx#
+*.nix
+*.lock
+__pycache__
