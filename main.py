@@ -6,6 +6,7 @@ import time
 import polars as pl
 import xlsxwriter
 import pdfplumber
+from pathlib import Path
 
 
 def extract_main_title(pdf_path):
@@ -189,12 +190,16 @@ def create_table_partitions(table):
 
 def process_pdf(pdf_path):
     start_time = time.time()
+
+    unique_id = pdf_path.stem #get the UUID of the uploaded file
+    output_path = Path("uploads") / f"{unique_id}_output.xlsx" #generate output path using UUID
+
     main_title = extract_main_title(pdf_path)
     raw_table = extract_pdf_tables(pdf_path)
     department_tables = split_departments(raw_table)
     department_tables = [create_table_partitions(table) for table in department_tables]
     # print(department_tables)
-    output_file = outputExcel.output_excel(main_title = main_title, output_list=department_tables, output_path="output.xlsx")
+    output_file = outputExcel.output_excel(main_title = main_title, output_list=department_tables, output_path=output_path)
 
     time_taken = round(time.time() - start_time, 2)
     print(f"--Total time taken = {time_taken}s ")
