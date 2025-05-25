@@ -59,13 +59,13 @@ function prepareFile(file) {
         <div class="col">
             <div class="file-name">
                 <div class="name">${file.name}</div>
-                <span>0%</span>
+                <span></span>
             </div>
             <div class="file-progress"><span></span></div>
             <div class="file-size">${(file.size / (1024 * 1024)).toFixed(3)} MB</div>
         </div>
         <div class="col">
-            <i class="fas fa-xmark cross"></i>
+            <!-- <i class="fas fa-xmark cross"></i> -->
             <i class="fa-solid fa-trash-can trash"></i>
         </div>`;
 
@@ -109,7 +109,7 @@ button.addEventListener('click', () => {
 
         button.querySelector('span').textContent = 'Done!';
         setTimeout(() => {
-            button.querySelector('span').textContent = 'Convert';
+            button.querySelector('span').textContent = 'Submitted';
             button.disabled = false;
         }, 2000);
     })
@@ -132,10 +132,23 @@ listContainer.addEventListener('click', (e) => {
     if (e.target.classList.contains('trash')) {
         const fileItem = e.target.closest('li');
         if (fileItem) {
+             // Reset progress styles and class states
+            const progressSpan = fileItem.querySelector('.file-progress span');
+            const percentText = fileItem.querySelector('.file-name span');
+ 
+            if (progressSpan) progressSpan.style.width = '0%';
+            if (percentText) percentText.innerText = '0%';
+ 
+            fileItem.classList.remove('complete', 'in-prog', 'error');
+
             fileItem.remove();
             listSection.style.display = 'none';
             selectedFile = null;
             fileSelectorInput.value = '';
+
+            button.disabled = false;
+            button.classList.remove('loading');
+            button.querySelector('span').textContent = 'Submit';
         }
     }
 });

@@ -178,9 +178,9 @@ body{
 .list-section li .col:nth-child(2){
     flex: 0.75;
     text-align: left;
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #3e4046;
-    padding: 8px 10px;
+    padding: 12px 10px;
 }
 
 .list-section li .col:nth-child(3){
@@ -200,27 +200,27 @@ body{
     display: inline-block;
 }
 
-.list-section li .col .file-name span{
+/* .list-section li .col .file-name span{
     color: #707EA0;
     float: right;
-}
+} */
 
-.list-section li .file-progress{
-    width: 100%;
+/* .list-section li .file-progress{
+    width: 0%;
     height: 5px;
     margin-top: 8px;
     border-radius: 8px;
     background-color: #dee6fd;
-}
+} */
 
-.list-section li .file-progress span{
+/* .list-section li .file-progress span{
     display: block;
-    width: 50%;
+    width: 0%;  
     height: 100%;
     border-radius: 8px;
     background-image: linear-gradient(120deg, #6b99fd, #9385ff);
     transition-duration: 0.4s;
-}
+} */
 
 .list-section li .col .file-size{
     font-size: 0.75rem;
@@ -278,11 +278,11 @@ body{
   top: 0;
   height: 100%;
   width: 100%;
-  background-color: rgba(222, 74, 15); /* loader color */
+  background-color: rgb(21, 67, 160); /* loader color */
   background: linear-gradient(
     0deg,
-    rgba(222, 74, 15, 1) 0%,
-    rgba(249, 199, 79, 1) 100%
+    rgba(135,158,226,255) 0%,
+     rgb(125, 154, 235) 100%
   );
   transition: transform 0.8s ease;
   z-index: 0;
