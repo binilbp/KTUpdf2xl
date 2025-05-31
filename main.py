@@ -6,6 +6,7 @@ import time
 import polars as pl
 import xlsxwriter
 import pdfplumber
+import json
 from pathlib import Path
 
 
@@ -163,8 +164,16 @@ def create_table_partitions(table):
         print("> Creating Analyzis Partitions  ...")
         if regular_results is not None:
             regular_analysis = analyzeTable.analyze_table(regular_results, type="Regular")
+            fontend_dictionary = {
+                        "Department": worksheet_name,
+                        "PassPercentage": regular_analysis["PassPercentage"],
+                        "StudentsCount": regular_analysis["StudentsCount"],
+                        "PassCount": regular_analysis["PassCount"],
+                        "FailCount": regular_analysis["FailCount"],
+                    }
         else :
             regular_analysis = None
+            fontend_dictionary = None
 
         if supply_results is not None:
             supply_analysis = analyzeTable.analyze_table(supply_results, type="Supply")
@@ -181,7 +190,8 @@ def create_table_partitions(table):
                 "RegularResults": regular_results,
                 "SupplyAnalysis": supply_analysis,
                 "RegularAnalysis": regular_analysis
-            }
+            },
+            fontend_dictionary,
         )
 
     except Exception as e:
@@ -197,15 +207,22 @@ def process_pdf(pdf_path):
     main_title = extract_main_title(pdf_path)
     raw_table = extract_pdf_tables(pdf_path)
     department_tables = split_departments(raw_table)
-    department_tables = [create_table_partitions(table) for table in department_tables]
-    # print(department_tables)
-    output_file = outputExcel.output_excel(main_title = main_title, output_list=department_tables, output_path=output_path)
+
+    department_tables_list = []
+    frontend_list = []
+    for table in department_tables:
+        table_to_append, dict_to_append = create_table_partitions(table)
+        department_tables_list.append(table_to_append)
+        frontend_list.append(dict_to_append)
+
+    # return json.dumps(frontend_list)
+    output_file = outputExcel.output_excel(main_title = main_title, output_list=department_tables_list, output_path=output_path)
 
     time_taken = round(time.time() - start_time, 2)
     print(f"--Total time taken = {time_taken}s ")
-    
-    return output_file #Returning the value as a path object
+
+    return output_file, frontend_list  #Returning the value as a path object, analysis as json
 
 # Run everything with one function
 if __name__ == "__main__":
-    process_pdf("./marks .pdf")
+    process_pdf("./marks.pdf")

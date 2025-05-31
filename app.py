@@ -44,7 +44,7 @@ async def process_pdf_api(file: UploadFile = File(...), background_tasks: Backgr
         shutil.copyfileobj(file.file, buffer)
 
     # Process and get output file
-    output_file = process_pdf(file_path) #final processed FilePath
+    output_file, frontend_json = process_pdf(file_path) #final processed FilePath
     print(f"[DEBUG] Output from process_pdf: {output_file}")
 
     if output_file and output_file.exists():
