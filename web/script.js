@@ -4,6 +4,9 @@ const listContainer = document.querySelector('.list');
 const fileSelector = document.querySelector('.file-selector');
 const fileSelectorInput = document.querySelector('.file-selector-input');
 const button = document.querySelector('.list-section button');
+const downloadButton = document.querySelector('.download');
+
+let downloadUrl = null; 
 
 let selectedFile = null; // Store selected file until Convert is clicked
 
@@ -46,7 +49,7 @@ function isPDF(type) {
 }
 
 function prepareFile(file) {
-    selectedFile = file; // Store the file for upload later
+    selectedFile = file;
     listContainer.innerHTML = '';
     listSection.style.display = 'block';
 
@@ -65,7 +68,6 @@ function prepareFile(file) {
             <div class="file-size">${(file.size / (1024 * 1024)).toFixed(3)} MB</div>
         </div>
         <div class="col">
-            <!-- <i class="fas fa-xmark cross"></i> -->
             <i class="fa-solid fa-trash-can trash"></i>
         </div>`;
 
@@ -91,17 +93,14 @@ button.addEventListener('click', () => {
         method: 'POST',
         body: formData
     })
-    .then(response => response.blob())
-    .then(blob => {
-        // Download file
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'output.xlsx';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+    .then(response => response.json())
+    .then(data => {
+        console.log("JSON received from backend:", data);
 
+        downloadUrl = data.download_url;
+        downloadButton.style.display = 'inline-block';
+
+        //button go brr brrr....
         li.classList.add('complete');
         li.classList.remove('in-prog');
         percentText.innerText = '100%';
@@ -127,18 +126,29 @@ button.addEventListener('click', () => {
     });
 });
 
+//Download Button
+downloadButton.addEventListener('click', () => {
+    if(!downloadUrl) return;
+
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = 'processed_output.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+});
+
 // Deletion
 listContainer.addEventListener('click', (e) => {
     if (e.target.classList.contains('trash')) {
         const fileItem = e.target.closest('li');
         if (fileItem) {
-             // Reset progress styles and class states
             const progressSpan = fileItem.querySelector('.file-progress span');
             const percentText = fileItem.querySelector('.file-name span');
- 
+
             if (progressSpan) progressSpan.style.width = '0%';
             if (percentText) percentText.innerText = '0%';
- 
+
             fileItem.classList.remove('complete', 'in-prog', 'error');
 
             fileItem.remove();

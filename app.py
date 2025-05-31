@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from main import process_pdf
 import uuid
 
@@ -50,13 +51,30 @@ async def process_pdf_api(file: UploadFile = File(...), background_tasks: Backgr
     if output_file and output_file.exists():
         print(f"[DEBUG] File exists: {output_file}")
         # Schedule cleanup in the background
-        background_tasks.add_task(cleanup_files, file_path, output_file)
 
+        # return FileResponse(
+        #     path=output_file,
+        #     filename="processed_output.xlsx",
+        #     media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        # )
+
+        download_url = f"/download/{output_file.name}"
+
+        return JSONResponse(content={
+            "download_url" : download_url,
+            "data" : frontend_json
+        })
+    else:
+        #print(f"[ERROR] File missing or invalid: {output_file}")
+        raise HTTPException(status_code=500, detail="Processing failed")
+@app.get("/download/{file_name}")
+async def download_file(file_name: str, background_tasks : BackgroundTasks):
+    file_path = UPLOAD_DIR/ file_name
+    if file_path.exists():
         return FileResponse(
-            path=output_file,
-            filename="processed_output.xlsx",
-            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+             path=file_path,
+             filename="processed_output.xlsx",
+             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
     else:
-        print(f"[ERROR] File missing or invalid: {output_file}")
-        raise HTTPException(status_code=500, detail="Processing failed")
+        raise HTTPException(status_code= 404, details = "File not found")
