@@ -4,7 +4,7 @@ const listContainer = document.querySelector('.list');
 const fileSelector = document.querySelector('.file-selector');
 const fileSelectorInput = document.querySelector('.file-selector-input');
 const button = document.querySelector('.list-section button');
-const downloadButton = document.querySelector('.download');
+const downloadButton = document.querySelector('.download-btn');
 
 let downloadUrl = null; 
 
@@ -98,7 +98,7 @@ button.addEventListener('click', () => {
         console.log("JSON received from backend:", data);
 
         downloadUrl = data.download_url;
-        downloadButton.style.display = 'inline-block';
+        downloadButton.style.display = 'flex';
 
         //button go brr brrr....
         li.classList.add('complete');

@@ -266,7 +266,7 @@ body{
    align-items: center;
    top: 100%;
    left: 50%;
-   transform: translate(-50%);
+   transform: translate(-50%, -50%);
    cursor: pointer;
    transition: background-color 0.3s;
 }
@@ -304,99 +304,25 @@ body{
 }
 
 
-
- /* .l.submit-button {
-    display: none;
-    border: none;
-    position: relative;
-    background-color: transparent;
-    width: 13em;
-    height: 2.3em;
-    background-color: var(--button-color);
-    padding: 7px 20px;
-    border-radius: 12px;
-    border-radius: 25px; 
-    text-transform: uppercase;
-    color: #ffffff;
-    padding: 2px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    top: 100%;
-    left: 50%;
-    transform: translate(-50%);
-    overflow: hidden;
-    cursor: pointer; 
-    box-shadow: rgba(128, 128, 161, 0.25), 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px, 8px, 16px, -8px; 
-   } 
-  
-.list-section button .txt {
-    transition: .4s ease-in-out;
-    position: absolute;
-  }
-  
-.list-section button .txt2 {
-  transform: translateY(1em) scale(0);
-  color: #ffffff;
-  position: absolute;
-  z-index: 2;
-}
-
-.list-section button .loader-container {
-  height: 100%;
-  width: 100%;
-  background-color: transparent;
-  border-radius: inherit;
-  display: flex;
-  justify-content: center;
+.download-btn{
+  position: relative;
+  display: none;
   align-items: center;
-  z-index: 1;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-transform: uppercase;
+  top: 100%;
+  font-size: 13.333px;
+  padding: 7px 20px;
+  justify-content: center;
+  background-color: white;
+  color: #5874C6;
+  box-shadow: rgba(50, 50, 93, 0.25), 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px, 8px, 16px, -8px;
+  border: none;
+  border-radius: 12px;
+  height: 2.3em;
+  width: 13em;
   overflow: hidden;
+  cursor: pointer;
 }
-
-.list-section button .loader-container .loader {
-  height: 100%;
-  width: 100%;
-  position: absolute;
-  background-color: rgb(140, 253, 168);
-  border-radius: inherit;
-  transform: translateX(-13em);
-  z-index: 2;
-}
-
-.list-section button:focus {
-  transition: .4s ease-in-out .4s;
-  animation: scaling 1.5s ease-in-out 0s 1 both;
-}
-
-.list-section button:focus .txt {
-  position: absolute;
-  transform: translateY(-5em);
-  transition: .4s ease-in-out;
-}
-
-.list-section button:focus .txt2 {
-  transform: translateY(0) scale(1);
-  transition: .3s ease-in-out 1.7s;
-}
-
-.list-section button:focus .loader {
-  display: block;
-  transform: translate(0);
-  transition: .8s cubic-bezier(0,.4,1,.28) .4s;
-  animation: loading;
-}
-
-@keyframes scaling {
-  20% {
-    height: 1.5em;
-  }
-
-  80% {
-    height: 1.5em;
-  }
-
-  100% {
-    height: 2.3em;
-  }
-} */
+ 
