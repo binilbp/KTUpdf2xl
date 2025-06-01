@@ -56,29 +56,22 @@
                 </div>    
             </div>
             <!--Analysis-Section-->
-                <div class="analysis">
-                    <div class="card-container">
-                        <div class="card">
-                            <div class="center">
-                                <div id="chart-container">
-                                    <canvas id="barChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="center">
-                                <div class="pie-chart-wrapper">
-                                    <button onclick="prevChart()" class="chart-nav-btn"><</button>
-                                    <div id="chart-container">
-                                        <canvas id="pieChart"></canvas>
-                                    </div>
-                                    <button onclick="nextChart()" class="chart-nav-btn">></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="chart-container">
+                <div class="chart-box">
+                    <canvas id="barChart" width="500" height="300"></canvas>
                 </div>
-            <!--Analysis-Section-->
+                <div class="chart-box">
+                    <canvas id="pieChart" width="500" height="300"></canvas>
+                </div>
+                <div class="chart-controls">
+                 <img src="https://cdn-icons-png.flaticon.com/512/109/109180.png" class="nav-btn left-btn" alt="Previous" />
+
+                 <div class="pagination-bullets" id="paginationBullets"></div>
+
+                 <img src="https://cdn-icons-png.flaticon.com/512/109/109180.png" class="nav-btn right-btn" alt="Next" />
+                </div>
+            </div>
+            <!-- End of Analysis Section -->
             <button class="download-btn">
                 <span>Download!</span>
             </button>

@@ -5,7 +5,7 @@ const fileSelector = document.querySelector('.file-selector');
 const fileSelectorInput = document.querySelector('.file-selector-input');
 const button = document.querySelector('.list-section button');
 const downloadButton = document.querySelector('.download-btn');
-const analysisSection = document.querySelector('.analysis');//Analysis Section
+const analysisSection = document.querySelector('.chart-container');//Analysis Section
 const cards = document.querySelectorAll('.card')
 const bar_ctx = document.getElementById('barChart').getContext('2d');
 
@@ -106,6 +106,25 @@ button.addEventListener('click', () => {
         downloadUrl = data.download_url;
         downloadButton.style.display = 'flex';
 
+        function renderPaginationBullets() {
+            const container = document.getElementById("paginationBullets");
+            container.innerHTML = '';
+
+            JSONdata.forEach((_, idx) => {
+                const bullet = document.createElement("div");
+                bullet.classList.add("bullet");
+                if (idx === currentIndex) bullet.classList.add("active");
+
+                bullet.addEventListener("click", () => {
+                    currentIndex = idx;
+                    renderChart(currentIndex);
+                });
+
+                container.appendChild(bullet);
+            });
+        }
+
+
         //button go brr brrr....
         li.classList.add('complete');
         li.classList.remove('in-prog');
@@ -118,7 +137,12 @@ button.addEventListener('click', () => {
             button.disabled = false;
         }, 2000);
 
-        analysisSection.style.display = 'block';
+        analysisSection.style.display = 'flex';
+
+        setTimeout(() => {
+            analysisSection.classList.add('visible');
+        }, 100);
+
 
         // //Analysis Scroll animation    
         // setTimeout(() => {
@@ -253,38 +277,36 @@ listContainer.addEventListener('click', (e) => {
 });
 
 function renderChart(index) {
-      const ctx = document.getElementById("pieChart").getContext("2d");
-      const dept = JSONdata[index];
+    const ctx = document.getElementById("pieChart").getContext("2d");
+    const dept = JSONdata[index];
 
-      // Update title
-    //   document.getElementById("chartTitle").textContent = `Department: ${dept.Department}`;
-
-      // Destroy previous chart if exists
-      if (chartInstance) {
+    if (chartInstance) {
         chartInstance.destroy();
-      }
+    }
 
-      // Create new chart
-      chartInstance = new Chart(ctx, {
+    chartInstance = new Chart(ctx, {
         type: "pie",
         data: {
-          labels: ["Pass", "Fail"],
-          datasets: [{
-            data: [dept.PassCount, dept.FailCount],
-            backgroundColor: ["#4CAF50", "#F44336"]
-          }]
+            labels: ["Pass", "Fail"],
+            datasets: [{
+                data: [dept.PassCount, dept.FailCount],
+                backgroundColor: ["#4CAF50", "#F44336"]
+            }]
         },
         options: {
-          responsive: true,
-          plugins: {
-            title: {
-              display: true,
-              text: `Pass vs Fail - ${dept.Department}`
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: `${dept.Department}`
+                }
             }
-          }
         }
-      });
+    });
+
+    renderPaginationBullets(); // <-- add this
 }
+
 
 function nextChart() {
     currentIndex = (currentIndex + 1) % JSONdata.length;
