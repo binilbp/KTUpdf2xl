@@ -376,9 +376,39 @@ body{
 canvas {
     display: block;
     width: 100% !important;
-    height: 100%px !important;
+    height: 100% !important;
 }
 #barChart {
   width: 100% !important;
   height: 100% !important;
+  max-height: 300px;
+}
+#pieChart {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 300px;
+}
+.pie-chart-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+}
+
+.chart-nav-btn {
+  padding: 8px 14px;
+  font-size: 18px;
+  background-color: var(--button-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: rgba(50, 50, 93, 0.25), 0px 13px 27px -5px,
+              rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+  transition: background-color 0.3s;
+}
+
+.chart-nav-btn:hover {
+  background-color: #4056b4;
 }

@@ -67,8 +67,12 @@
                         </div>
                         <div class="card">
                             <div class="center">
-                                <div id="chart-container">
-                                    <canvas id="pieChart"></canvas>
+                                <div class="pie-chart-wrapper">
+                                    <button onclick="prevChart()" class="chart-nav-btn"><</button>
+                                    <div id="chart-container">
+                                        <canvas id="pieChart"></canvas>
+                                    </div>
+                                    <button onclick="nextChart()" class="chart-nav-btn">></button>
                                 </div>
                             </div>
                         </div>

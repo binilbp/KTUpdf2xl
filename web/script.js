@@ -9,6 +9,8 @@ const analysisSection = document.querySelector('.analysis');//Analysis Section
 const cards = document.querySelectorAll('.card')
 const bar_ctx = document.getElementById('barChart').getContext('2d');
 
+let currentIndex = 0;
+let chartInstance = null;
 let downloadUrl = null; 
 let JSONdata = null;
 let selectedFile = null; // Store selected file until Convert is clicked
@@ -148,7 +150,7 @@ button.addEventListener('click', () => {
                 datasets: [{
                     label: 'Pass Percentage',
                     data: JSONdata.map(d => d.PassPercentage),
-                    backgroundColor: JSONdata.map((_, i) => `hsl(${i * 40 % 360}, 70%, 60%)`),
+                    backgroundColor: "#5874C6",
                     borderColor: '#fff',
                     borderWidth: 1
                 }]
@@ -197,7 +199,7 @@ button.addEventListener('click', () => {
                 }
             }
         });
-
+        renderChart(currentIndex);
     })
     .catch(error => {
         console.error("Upload error:", error);
@@ -249,3 +251,48 @@ listContainer.addEventListener('click', (e) => {
         }
     }
 });
+
+function renderChart(index) {
+      const ctx = document.getElementById("pieChart").getContext("2d");
+      const dept = JSONdata[index];
+
+      // Update title
+    //   document.getElementById("chartTitle").textContent = `Department: ${dept.Department}`;
+
+      // Destroy previous chart if exists
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      // Create new chart
+      chartInstance = new Chart(ctx, {
+        type: "pie",
+        data: {
+          labels: ["Pass", "Fail"],
+          datasets: [{
+            data: [dept.PassCount, dept.FailCount],
+            backgroundColor: ["#4CAF50", "#F44336"]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: `Pass vs Fail - ${dept.Department}`
+            }
+          }
+        }
+      });
+}
+
+function nextChart() {
+    currentIndex = (currentIndex + 1) % JSONdata.length;
+    renderChart(currentIndex);
+}
+
+function prevChart() {
+    currentIndex = (currentIndex - 1 + JSONdata.length) % JSONdata.length;
+    renderChart(currentIndex);
+}
+
