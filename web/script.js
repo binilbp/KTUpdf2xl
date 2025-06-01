@@ -5,9 +5,12 @@ const fileSelector = document.querySelector('.file-selector');
 const fileSelectorInput = document.querySelector('.file-selector-input');
 const button = document.querySelector('.list-section button');
 const downloadButton = document.querySelector('.download-btn');
+const analysisSection = document.querySelector('.analysis');//Analysis Section
+const cards = document.querySelectorAll('.card')
+const bar_ctx = document.getElementById('barChart').getContext('2d');
 
 let downloadUrl = null; 
-
+let JSONdata = null;
 let selectedFile = null; // Store selected file until Convert is clicked
 
 // Upload files with browse button
@@ -96,6 +99,7 @@ button.addEventListener('click', () => {
     .then(response => response.json())
     .then(data => {
         console.log("JSON received from backend:", data);
+        JSONdata = data.data;
 
         downloadUrl = data.download_url;
         downloadButton.style.display = 'flex';
@@ -111,6 +115,89 @@ button.addEventListener('click', () => {
             button.querySelector('span').textContent = 'Submitted';
             button.disabled = false;
         }, 2000);
+
+        analysisSection.style.display = 'block';
+
+        // //Analysis Scroll animation    
+        // setTimeout(() => {
+        //     analysisSection.scrollIntoView({ behavior: 'smooth' ,block: 'start'});
+        // }, 300);
+
+        const offset = analysisSection.offsetTop - (window.innerHeight / 2) + (analysisSection.offsetHeight / 2);
+        window.scrollTo({
+        top: offset,
+        behavior: "smooth"
+        });
+
+        // Cards Fade in effect
+        cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.classList.add('visible');
+        }, index * 100); // stagger effect , cards appear one after another 100ms delay
+        });
+
+        // cards[0].innerHTML = ` //how to set the content
+        //     <pre>${JSON.stringify(JSONdata, null, 2)}</pre>
+        // `;
+
+        // Bar chart view
+        const barChart = new Chart(bar_ctx, {
+            type: 'bar',  
+            data: {
+                labels: JSONdata.map(d => d.Department),
+                datasets: [{
+                    label: 'Pass Percentage',
+                    data: JSONdata.map(d => d.PassPercentage),
+                    backgroundColor: JSONdata.map((_, i) => `hsl(${i * 40 % 360}, 70%, 60%)`),
+                    borderColor: '#fff',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 900,
+                    easing: 'easeOutCubic'
+                },
+                plugins: {
+                    tooltip: {
+                        enabled: true,
+                        callbacks: {
+                            label: context => {
+                                const label = context.label || '';
+                                const value = context.parsed.y || 0;
+                                return `${label}: ${value}%`;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            boxWidth: 20,
+                            padding: 15
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Pass Percentage'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Department'
+                        }
+                    }
+                }
+            }
+        });
+
     })
     .catch(error => {
         console.error("Upload error:", error);

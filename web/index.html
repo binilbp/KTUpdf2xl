@@ -6,6 +6,7 @@
     <title>KTU Result Analyzer</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -54,6 +55,26 @@
                     </button>
                 </div>    
             </div>
+            <!--Analysis-Section-->
+                <div class="analysis">
+                    <div class="card-container">
+                        <div class="card">
+                            <div class="center">
+                                <div id="chart-container">
+                                    <canvas id="barChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="center">
+                                <div id="chart-container">
+                                    <canvas id="pieChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <!--Analysis-Section-->
             <button class="download-btn">
                 <span>Download!</span>
             </button>
