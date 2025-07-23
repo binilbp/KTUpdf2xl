@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, easeInOut } from "framer-motion"; // ✅ Import easing function
 
 const LoginForm = ({ onClose }: { onClose: () => void }) => {
   const [isRegister, setIsRegister] = useState(false);
@@ -14,7 +14,7 @@ const LoginForm = ({ onClose }: { onClose: () => void }) => {
     setTimeout(onClose, 300);
   };
 
-  const transition = { duration: 0.3, ease: "easeInOut" };
+  const transition = { duration: 0.3, ease: easeInOut }; // ✅ Correct type
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
