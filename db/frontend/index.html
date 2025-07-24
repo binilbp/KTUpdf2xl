@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FastAPI Auth Test</title>
+</head>
+<body>
+  <h2>Register</h2>
+  <input type="text" id="reg_firstname" placeholder="First Name">
+  <input type="text" id="reg_lastname" placeholder="Last Name">
+  <input type="email" id="reg_email" placeholder="Email">
+  <input type="password" id="reg_password" placeholder="Password">
+  <button onclick="register()">Register</button>
+
+  <h2>Login</h2>
+  <input type="email" id="login_email" placeholder="Email">
+  <input type="password" id="login_password" placeholder="Password">
+  <button onclick="login()">Login</button>
+
+  <h2>Dashboard (Protected)</h2>
+  <button onclick="accessProtected()">Get Protected Data</button>
+
+  <pre id="response"></pre>
+
+  <script>
+    let token = "";
+
+    async function register() {
+      const response = await fetch("http://127.0.0.1:8000/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: document.getElementById("reg_firstname").value,
+          last_name: document.getElementById("reg_lastname").value,
+          email: document.getElementById("reg_email").value,
+          password: document.getElementById("reg_password").value,
+        })
+      });
+      const data = await response.json();
+      document.getElementById("response").textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function login() {
+      const response = await fetch("http://127.0.0.1:8000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: document.getElementById("login_email").value,
+          password: document.getElementById("login_password").value,
+        })
+      });
+      const data = await response.json();
+      token = data.access_token;
+      document.getElementById("response").textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function accessProtected() {
+      const response = await fetch("http://127.0.0.1:8000/protected", {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      document.getElementById("response").textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>

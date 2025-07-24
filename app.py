@@ -32,7 +32,7 @@ def cleanup_files(*paths: Path):
         except Exception as e:
             print(f"[CLEANUP ERROR] {e}")
 
-
+# /process_pdf and download_file are temporary entpoints without db
 @app.post("/process-pdf/")
 async def process_pdf_api(file: UploadFile = File(...), background_tasks: BackgroundTasks = None):
     # Generate unique filename
