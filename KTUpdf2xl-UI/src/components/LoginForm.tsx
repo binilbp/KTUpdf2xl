@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { motion, easeInOut } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { handleAuthSubmit } from "../utils/handleAuthSubmit";
 
 const LoginForm = ({ onClose }: { onClose: () => void }) => {
   const [isRegister, setIsRegister] = useState(false);
   const [fadeIn, setFadeIn] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setFadeIn(true);
@@ -44,7 +46,7 @@ const LoginForm = ({ onClose }: { onClose: () => void }) => {
 
         <motion.form
           layout
-          onSubmit={handleAuthSubmit} // <-- moved out
+          onSubmit={(e) => handleAuthSubmit(e, navigate, isRegister)}
           className="flex flex-col gap-4"
         >
           {isRegister && (
@@ -52,7 +54,7 @@ const LoginForm = ({ onClose }: { onClose: () => void }) => {
               <motion.input
                 layout
                 type="text"
-                name="username"
+                name="user_name" // ✅ MATCHES backend
                 placeholder="Username"
                 required
                 className="p-2 border border-gray-300 rounded"
@@ -76,7 +78,7 @@ const LoginForm = ({ onClose }: { onClose: () => void }) => {
               <motion.input
                 layout
                 type="text"
-                name="role"
+                name="designation" // ✅ MATCHES backend
                 placeholder="Institution Role"
                 required
                 className="p-2 border border-gray-300 rounded"
