@@ -5,7 +5,7 @@ from app.routers.auth import authrouter
 from app.util.protectRoute import get_current_user
 from app.db.schema.user import UserOutput
 from fastapi.middleware.cors import CORSMiddleware
-
+ 
 
 @asynccontextmanager
 async def lifespan(app : FastAPI):
@@ -31,4 +31,4 @@ def health_check():
 def read_protected(user : UserOutput = Depends(get_current_user)):
     return {"data": user}
 
-# this main shoud be merged with app.py (main -> app)
+#This main File is Only For testing purposes , donot recomment for production

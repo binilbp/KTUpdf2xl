@@ -1,15 +1,23 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
+from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks, Depends
 from fastapi.responses import FileResponse
-import shutil
-from pathlib import Path
 from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from db.app.util.init_db import create_tables
+from db.app.routers.auth import authrouter
 from main import process_pdf
+from pathlib import Path
+import shutil
 import uuid
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app : FastAPI):
+    #db initialization
+    create_tables()
+    yield
 
+app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,6 +25,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(router=authrouter, tags=["auth"])
 
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)

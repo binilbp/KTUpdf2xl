@@ -1,7 +1,7 @@
-from app.db.repository.userRepo import UserRepository
-from app.db.schema.user import UserOutput, UserInCreate, UserInLogin, UserWithToken
-from app.core.security.hashHelper import HashHelper
-from app.core.security.authHandler import AuthHandler
+from db.app.db.repository.userRepo import UserRepository
+from db.app.db.schema.user import UserOutput, UserInCreate, UserInLogin, UserWithToken
+from db.app.core.security.hashHelper import HashHelper
+from db.app.core.security.authHandler import AuthHandler
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
-from app.core.database import get_db
+from db.app.core.database import get_db
 from sqlalchemy.orm import Session
-from app.service.userService import UserService
-from app.db.schema.user import UserInCreate, UserInLogin, UserWithToken, UserOutput
+from db.app.service.userService import UserService
+from db.app.db.schema.user import UserInCreate, UserInLogin, UserWithToken, UserOutput
 authrouter = APIRouter()
 
 @authrouter.post("/login", status_code=200, response_model=UserWithToken)
