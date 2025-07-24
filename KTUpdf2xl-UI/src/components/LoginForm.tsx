@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { motion, easeInOut } from "framer-motion"; // ✅ Import easing function
+import { motion, easeInOut } from "framer-motion";
+import { handleAuthSubmit } from "../utils/handleAuthSubmit";
 
 const LoginForm = ({ onClose }: { onClose: () => void }) => {
   const [isRegister, setIsRegister] = useState(false);
@@ -14,20 +15,7 @@ const LoginForm = ({ onClose }: { onClose: () => void }) => {
     setTimeout(onClose, 300);
   };
 
-  const transition = { duration: 0.3, ease: easeInOut }; // ✅ Correct type
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data: { [key: string]: string } = {};
-
-    formData.forEach((value, key) => {
-      data[key] = value.toString();
-    });
-
-    console.log("Form Data:", data);
-    // Send data to backend here
-  };
+  const transition = { duration: 0.3, ease: easeInOut };
 
   return (
     <div
@@ -56,7 +44,7 @@ const LoginForm = ({ onClose }: { onClose: () => void }) => {
 
         <motion.form
           layout
-          onSubmit={handleSubmit}
+          onSubmit={handleAuthSubmit} // <-- moved out
           className="flex flex-col gap-4"
         >
           {isRegister && (

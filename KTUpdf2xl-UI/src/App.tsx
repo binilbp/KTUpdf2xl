@@ -1,27 +1,15 @@
-import Header from "./components/Header";
-import HeroSection from "./components/HeroSection";
-import Footer from "./components/Footer";
-import About from "./components/About";
-import Team from "./components/Team";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./components/Home";
+import { Dashboard } from "./components/Dashboard";
 
-function App() {
 
+export default function App() {
   return (
-    <div className='flex flex-col min-h-dvh bg-(--primary-bg-color)'>
-
-      <Header />
-
-      <main>
-        <HeroSection />
-        <About/>
-        <Team/>
-      </main>
-
-      <Footer />
-
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </Router>
   );
-};
-
-
-export default App
+}

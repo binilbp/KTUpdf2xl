@@ -28,7 +28,7 @@ const HeroSection = () => {
           tracking, and interactive graphs — all through a simple web interface.
         </p>
         <button
-          className="bg-blue-600 px-10 py-3 text-white rounded-2xl font-semibold shadow-md hover:bg-blue-500 transition cursor-pointer"
+          className="bg-blue-600 px-10 py-3 text-white rounded font-semibold shadow-md hover:bg-blue-500 transition cursor-pointer"
           onClick={() => setShowLogin(true)}
         >
           Login/Register to continue
