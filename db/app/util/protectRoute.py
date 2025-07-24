@@ -40,7 +40,8 @@ def get_current_user(
 
     return UserOutput(
         id=user.id,
-        first_name=user.first_name,
-        last_name=user.last_name,
+        username=user.username,
+        institution=user.institution,
+        designation=user.designation,
         email=user.email
     )

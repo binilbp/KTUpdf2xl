@@ -5,21 +5,25 @@ from typing import Union
 
 
 class UserInCreate(BaseModel):
-    first_name: str
-    last_name: str
+    user_name: str
+    institution: str
+    designation: str
     email: EmailStr
     password: str
 
 class UserOutput(BaseModel):
     id: int
-    first_name: str
-    last_name: str
+    user_name: str
+    institution: str
+    designation: str
     email: EmailStr
+
 
 class UserInUpdate(BaseModel):
     id: int
-    first_name: Union[str, None] = None
-    last_name: Union[str, None] = None
+    user_name: Union[str, None] = None
+    institution: Union[str, None] = None
+    designation: Union[str, None] = None
     email: Union[EmailStr, None] = None
     password: Union[str, None] = None
 
