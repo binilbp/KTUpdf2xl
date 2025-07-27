@@ -1,3 +1,10 @@
+import Upload from "./Upload";
+
+
 export const Dashboard = () => {
-  return <h1>Welcome to the Dashboard!</h1>;
+  return (
+    <div className="flex  items-center pd-20 w-100 h-100">
+      <Upload />
+    </div>
+  )
 };
