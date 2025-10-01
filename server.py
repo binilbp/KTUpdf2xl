@@ -4,8 +4,10 @@ from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from db.app.db.schema.user import UserOutput
 from db.app.util.init_db import create_tables
 from db.app.routers.auth import authrouter
+from db.app.util.protectRoute import get_current_user
 from main import process_pdf
 from pathlib import Path
 import shutil
@@ -25,13 +27,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(router=authrouter, tags=["auth"])
+app.include_router(router=authrouter, tags=["auth"], prefix="/auth")
 
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 app.mount("/static", StaticFiles(directory="web", html=True), name="static")
 
+@app.get("/protected")
+def read_protected(user : UserOutput = Depends(get_current_user)):
+    return {"data": user}
 
 def cleanup_files(*paths: Path):
     for path in paths:

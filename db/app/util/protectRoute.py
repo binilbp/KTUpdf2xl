@@ -1,10 +1,10 @@
 from fastapi import Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import Annotated, Union
-from app.core.security.authHandler import AuthHandler
-from app.service.userService import UserService
-from app.core.database import get_db
-from app.db.schema.user import UserOutput
+from db.app.core.security.authHandler import AuthHandler
+from db.app.service.userService import UserService
+from db.app.core.database import get_db
+from db.app.db.schema.user import UserOutput
 
 AUTH_PREFIX = 'Bearer '
 
@@ -40,7 +40,7 @@ def get_current_user(
 
     return UserOutput(
         id=user.id,
-        username=user.username,
+        user_name=user.user_name,
         institution=user.institution,
         designation=user.designation,
         email=user.email
