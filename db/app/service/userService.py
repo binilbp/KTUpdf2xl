@@ -5,6 +5,8 @@ from db.app.core.security.authHandler import AuthHandler
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
+from db.app.db.schema.user_file import UserFileCreate, UserFileOutput
+
 class UserService:
     def __init__(self, session : Session):
         self.__userRepository = UserRepository(session=session)
@@ -34,3 +36,12 @@ class UserService:
         if user:
             return user
         raise HTTPException(status_code=400, detail="User is not available")
+
+    def add_user_file(self, user_id: int, file_data: UserFileCreate) -> UserFileOutput:
+        user = self.__userRepository.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        #create file record
+        created_file = self.__userRepository.create_user_file(user_id, file_data=file_data)
+        return created_file

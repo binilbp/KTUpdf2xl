@@ -13,6 +13,10 @@ from pathlib import Path
 import shutil
 import uuid
 
+#test
+from db.app.routers.user_file import router as user_file_router
+
+
 @asynccontextmanager
 async def lifespan(app : FastAPI):
     #db initialization
@@ -28,6 +32,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(router=authrouter, tags=["auth"], prefix="/auth")
+#test
+app.include_router(user_file_router)
 
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
@@ -38,6 +44,7 @@ app.mount("/static", StaticFiles(directory="web", html=True), name="static")
 def read_protected(user : UserOutput = Depends(get_current_user)):
     return {"data": user}
 
+
 def cleanup_files(*paths: Path):
     for path in paths:
         try:
@@ -45,6 +52,7 @@ def cleanup_files(*paths: Path):
             print(f"[CLEANUP] Deleted: {path.name}")
         except Exception as e:
             print(f"[CLEANUP ERROR] {e}")
+
 
 # /process_pdf and download_file are temporary entpoints without db
 @app.post("/process-pdf/")
