@@ -3,80 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KTU Result Analyzer</title>
+    <title>KTU Analyzer Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="drag-drop-section">
-            <div class="header-section">
-                <h1>Upload Files</h1>
+    <div class="dashboard-container">
+        <nav class="navbar">
+            <div class="nav-left">
+                <img src="https://erp.vidyaacademy.ac.in/itf_vidya_base/static/src/img/logo2.png/" alt="Vidya Academy Logo" class="logo-img">
+                <div class="nav-separator"></div>
+                <ul class="nav-links">
+                    <li><a href="#" class="nav-link active" aria-current="page">Dashboard</a></li>
+                    <li><a href="#" class="nav-link">Activity</a></li>
+                    <li><a href="#" class="nav-link">Teachers</a></li>
+                    <li><a href="#" class="nav-link">Events</a></li>
+                    <li><a href="#" class="nav-link">Payments</a></li>
+                </ul>
             </div>
-            <div class="drop-section">
-                <div class="col">
-                    <div class="cloud-icon">
-                        <img class="cloud" src="./icons/cloud-upload.svg" alt="cloud">
+            <div class="nav-right">
+                <button class="icon-button" aria-label="Notifications">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                </button>
+                <img src="https://i.pravatar.cc/40?u=admin" alt="Admin Avatar" class="avatar">
+            </div>
+        </nav>
+
+        <main class="dashboard-grid">
+            <!-- Merged First Row Container -->
+            <div class="merged-first-row">
+                <section class="card summary-card" aria-labelledby="summary-title">
+                    <h2 id="summary-title" class="summary-description">
+                        Monitor your branch’s growth<br>and stay ahead with insights.
+                    </h2>
+                    <div class="branch-selector-container">
+                        <div class="branch-selector-wrapper">
+                            <label for="branch-select" class="branch-label">BRANCH</label>
+                            <div class="vertical-separator"></div>
+                            <div class="custom-select-wrapper">
+                                <select id="branch-select" aria-label="Select Branch">
+                                    <option value="CSE" selected>Computer Science</option>
+                                    <option value="CE">Civil Engineering</option>
+                                    <option value="EC">Electronics & Communication</option>
+                                    <option value="EEE">Electrical & Electronics</option>
+                                    <option value="MECH">Mechanical Engineering</option>
+                                    <option value="AIML">AI & Machine Learning</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <span>Drag & Drop</span>
-                    <button class="file-selector">Browse Files</button>
-                    <input type="file" class="file-selector-input"/>
-                </div>
-                <div class="col">
-                    <div class="drop-here">Drop Here</div>
-                </div>
-            </div>
-            <div class="list-section">
-                <div class="list-title">Uploaded Files</div>
-                     <ul class="list">
-                        <!-- <li class="in-prog">
-                            <div class="col">
-                                <img class="pdflogo" src="./icons/pdf.svg" alt="pdf-logo">
-                            </div>
-                            <div class="col">
-                                <div class="file-name">
-                                    <div class="name">File Name Here</div>
-                                    <span>50%</span>
-                                </div>
-                                <div class="file-progress">
-                                    <span></span>
-                                </div>
-                                <div class="file-size">2.2 MB</div>
-                            </div>
-                            <div class="col">
-                                <i class="fas fa-xmark cross"></i>
-                                <i class="fas fa-check tick"></i>
-                            </div>
-                        </li> -->
+                    <div class="summary-footer">
+                        <div class="grade-display">
+                            <span id="summary-percentage" class="grade-percentage">35.7%</span>
+                        </div>
+                        <p class="last-updated">Last updated: November 30, 2024</p>
+                    </div>
+                </section>
+
+                <section class="card analytics-card" aria-labelledby="analytics-title">
+                    <header class="card-header">
+                        <h2 id="analytics-title">Grade Analytics</h2>
+                        <select aria-label="Select time range" class="small-select">
+                            <option>This year</option>
+                            <option>Last year</option>
+                        </select>
+                    </header>
+                    <div class="chart-container">
+                        <canvas id="grade-analytics-chart"></canvas>
+                    </div>
+                </section>
+
+                <section class="card best-card" aria-labelledby="best-of-branch-title">
+                     <header class="card-header">
+                        <h2 id="best-of-branch-title">Best of Branch</h2>
+                        <p class="card-subtitle-sm">This year by grade</p>
+                    </header>
+                    <ul class="student-list">
+                        <li><img src="https://i.pravatar.cc/40?u=dianne" alt="" class="avatar"><div class="student-info"><span class="student-name">Dianne Russell</span><span class="student-detail">A+ (4 times)</span></div></li>
+                        <li><img src="https://i.pravatar.cc/40?u=savannah" alt="" class="avatar"><div class="student-info"><span class="student-name">Savannah Nguyen</span><span class="student-detail">A+ (4 times)</span></div></li>
+                        <li><img src="https://i.pravatar.cc/40?u=darrell" alt="" class="avatar"><div class="student-info"><span class="student-name">Darrell Steward</span><span class="student-detail">A+ (3 times)</span></div></li>
+                        <li><img src="https://i.pravatar.cc/40?u=arlene" alt="" class="avatar"><div class="student-info"><span class="student-name">Arlene McCoy</span><span class="student-detail">A+ (3 times)</span></div></li>
                     </ul>
-                    <button class="submit">
-                        <span>Confirm</span>
-                    </button>
-                </div>    
+                    <button class="view-list-button">View full list &rarr;</button>
+                </section>
             </div>
-            <!--Analysis-Section-->
-            <div class="chart-container">
-                <div class="chart-box">
-                    <canvas id="barChart" width="500" height="300"></canvas>
-                </div>
-                <div class="chart-box">
-                    <canvas id="pieChart" width="500" height="300"></canvas>
-                </div>
-                <div class="chart-controls">
-                 <img src="https://cdn-icons-png.flaticon.com/512/109/109180.png" class="nav-btn left-btn" alt="Previous" />
 
-                 <div class="pagination-bullets" id="paginationBullets"></div>
-
-                 <img src="https://cdn-icons-png.flaticon.com/512/109/109180.png" class="nav-btn right-btn" alt="Next" />
+            <!-- Restored Second Row Cards -->
+            <section class="card donut-card" aria-labelledby="passfail-title">
+                <h2 id="passfail-title" class="card-title-center">Subject Pass / Fail Ratio</h2>
+                <div class="subject-navigator">
+                    <button id="prev-subject" class="nav-arrow" aria-label="Previous Subject">&lt;</button>
+                    <h3 id="current-subject-name" class="active-subject-name">GYMAT201</h3>
+                    <button id="next-subject" class="nav-arrow" aria-label="Next Subject">&gt;</button>
                 </div>
-            </div>
-            <!-- End of Analysis Section -->
-            <button class="download-btn">
-                <span>Download!</span>
-            </button>
-        </div>      
+                <div class="donut-chart-wrapper">
+                    <canvas id="pass-fail-chart"></canvas>
+                    <div id="donut-center-text" class="donut-center-text">
+                        <div class="donut-percentage">77%</div>
+                        <div class="donut-label">Passed</div>
+                    </div>
+                </div>
+                <div class="donut-legend">
+                    <div>
+                        <span class="legend-dot passed"></span>
+                        Passed: <strong id="total-passed">0</strong>
+                    </div>
+                    <div>
+                        <span class="legend-dot failed"></span>
+                        Failed: <strong id="total-failed">0</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card upload-card" aria-labelledby="upload-title">
+                <h2 id="upload-title" class="card-title-center">Upload New Sheet</h2>
+                <div id="drop-zone" class="drop-zone" role="button" tabindex="0" aria-label="Drag and drop a PDF file here, or click to select a file">
+                    <input type="file" id="file-input" accept=".pdf" hidden>
+                    <svg viewBox="0 0 640 512" class="upload-svg"><path d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128H144zm79-217c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l39-39V392c0 13.3 10.7 24 24 24s24-10.7 24-24V257.9l39 39c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-80-80c-9.4-9.4-24.6-9.4-33.9 0l-80 80z"></path></svg>
+                    <p>Drag & drop PDF here</p>
+                    <p class="upload-cta">or click to browse</p>
+                </div>
+                <div id="upload-preview" class="upload-preview" hidden>
+                    <h3>Ready to Submit</h3>
+                    <ul id="file-list"></ul>
+                    <button id="submit-btn" class="submit-button">Submit</button>
+                </div>
+                <p id="upload-error" class="upload-error" role="alert" hidden></p>
+            </section>
+
+            <section class="card report-card" aria-live="polite">
+                <div id="report-initial-state" class="report-content-wrapper">
+                    <!-- <img src="https://plus.unsplash.com/premium_photo-1673514503558-e7ed72105d4d?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Stylized illustration of a document" class="report-image initial-image"> -->
+                </div>
+                <div id="report-loading-state" class="report-content-wrapper" hidden>
+                     <div class="loader-wrapper">
+                        <svg class="loader-svg" viewBox="0 0 100 100">
+                            <circle class="loader-bg" cx="50" cy="50" r="45"></circle>
+                            <circle class="loader-progress" cx="50" cy="50" r="45"></circle>
+                        </svg>
+                        <span id="loader-percentage" class="loader-percentage">0%</span>
+                    </div>
+                    <p>Generating report...</p>
+                </div>
+                <div id="report-final-state" class="report-content-wrapper" hidden>
+                    <!-- <img src="https://plus.unsplash.com/premium_photo-1673514503558-e7ed72105d4d?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Yearly report illustration" class="report-image final-image"> -->
+                    <h2 id="report-title" class="card-title-center">Report Ready</h2>
+                    <button id="download-btn" class="download-button"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Download Report</button>
+                </div>
+            </section>
+
+            <section class="card misc-card" aria-labelledby="sheets-title">
+                <h2 id="sheets-title" class="sr-only">New sheets added</h2>
+                <div class="sheets-stat"><span>14</span><p>New sheets added per week</p></div>
+                <div class="today-update">+2 Today</div>
+                <div class="contributors"><p>Contributors</p><div class="avatar-stack"><img src="https://i.pravatar.cc/32?u=contributor1" alt="Contributor 1" class="avatar-chip"><img src="https://i.pravatar.cc/32?u=contributor2" alt="Contributor 2" class="avatar-chip"><img src="https://i.pravatar.cc/32?u=contributor3" alt="Contributor 3" class="avatar-chip"></div></div>
+                <a href="#" class="join-link">Join club &rarr;</a>
+            </section>
+        </main>
     </div>
-<script src="script.js"></script>    
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
