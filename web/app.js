@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ticks: {
                             color: 'var(--text-secondary)', stepSize: 10,
                             callback: value => {
-                                const grades = { 100:'S', 90:'A+', 80:'A', 70:'B+', 60:'B', 50:'C', 40:'P', 0:'F' };
+                                const grades = { 80:'S ', 70:'A+', 60:'A ', 50:'B+', 40:'B ', 30:'C ', 20:'P ', 10:'F ' };
                                 return grades[value] ?? ''; // Return grade or empty string
                             }
                         }
@@ -153,19 +153,142 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- UPLOAD & REPORT FLOW LOGIC (UNCHANGED) ---
     // This section remains identical to the previous version
-    const dropZone = document.getElementById('drop-zone'), fileInput = document.getElementById('file-input');
-    const uploadPreview = document.getElementById('upload-preview'), fileList = document.getElementById('file-list');
-    const uploadError = document.getElementById('upload-error'), submitBtn = document.getElementById('submit-btn');
+    // const dropZone = document.getElementById('drop-zone'), fileInput = document.getElementById('file-input');
+    // const uploadPreview = document.getElementById('upload-preview'), fileList = document.getElementById('file-list');
+    // const uploadError = document.getElementById('upload-error'), submitBtn = document.getElementById('submit-btn');
+    // dropZone.addEventListener('click', () => fileInput.click());
+    // dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    // dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    // dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+    // fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+    // function handleFiles(files) { uploadError.hidden = true; if (files.length === 0) return; const file = files[0]; if (file.type !== 'application/pdf') { uploadError.textContent = 'Error: Only PDF files are accepted.'; uploadError.hidden = false; return; } fileList.innerHTML = `<li>${file.name} (${(file.size / 1024).toFixed(1)} KB)</li>`; dropZone.hidden = true; uploadPreview.hidden = false; }
+    // submitBtn.addEventListener('click', () => { uploadPreview.hidden = true; dropZone.hidden = false; fileInput.value = ''; triggerReportGeneration(); });
+    // function triggerReportGeneration() { const reportInitial = document.getElementById('report-initial-state'); const reportLoading = document.getElementById('report-loading-state'); const reportFinal = document.getElementById('report-final-state'); const loaderProgress = reportLoading.querySelector('.loader-progress'); const loaderPercentage = document.getElementById('loader-percentage'); reportInitial.hidden = true; reportLoading.hidden = false; reportFinal.hidden = true; let progress = 0; const circumference = 2 * Math.PI * 45; loaderProgress.style.strokeDashoffset = circumference; const interval = setInterval(() => { progress += 2; if (progress > 100) progress = 100; loaderPercentage.textContent = `${Math.floor(progress)}%`; const offset = circumference - (progress / 100) * circumference; loaderProgress.style.strokeDashoffset = offset; if (progress >= 100) { clearInterval(interval); setTimeout(() => { reportLoading.hidden = true; reportFinal.hidden = false; }, 500); } }, 60); }
+    // const downloadBtn = document.getElementById('download-btn');
+    // downloadBtn.addEventListener('click', () => { const content = "Simulated yearly report. Processed on: " + new Date().toUTCString(); const blob = new Blob([content], { type: 'text/plain' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Yearly-Report.txt'; a.click(); URL.revokeObjectURL(a.href); });
+
+    // --- Elements for Upload and Report Cards ---
+    const uploadTitle = document.getElementById('upload-title');
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const uploadPreview = document.getElementById('upload-preview');
+    const fileList = document.getElementById('file-list');
+    const submitBtn = document.getElementById('submit-btn');
+
+    const reportLoadingState = document.getElementById('report-loading-state');
+    const reportFinalState = document.getElementById('report-final-state');
+    const generatingSubtitle = document.getElementById('generating-subtitle');
+    const loaderProgressCircle = document.getElementById('loader-progress-circle');
+    const loaderPercentage = document.getElementById('loader-percentage');
+
+
+    // --- Drag and Drop Listeners ---
     dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragover', e => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-    dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
     fileInput.addEventListener('change', () => handleFiles(fileInput.files));
-    function handleFiles(files) { uploadError.hidden = true; if (files.length === 0) return; const file = files[0]; if (file.type !== 'application/pdf') { uploadError.textContent = 'Error: Only PDF files are accepted.'; uploadError.hidden = false; return; } fileList.innerHTML = `<li>${file.name} (${(file.size / 1024).toFixed(1)} KB)</li>`; dropZone.hidden = true; uploadPreview.hidden = false; }
-    submitBtn.addEventListener('click', () => { uploadPreview.hidden = true; dropZone.hidden = false; fileInput.value = ''; triggerReportGeneration(); });
-    function triggerReportGeneration() { const reportInitial = document.getElementById('report-initial-state'); const reportLoading = document.getElementById('report-loading-state'); const reportFinal = document.getElementById('report-final-state'); const loaderProgress = reportLoading.querySelector('.loader-progress'); const loaderPercentage = document.getElementById('loader-percentage'); reportInitial.hidden = true; reportLoading.hidden = false; reportFinal.hidden = true; let progress = 0; const circumference = 2 * Math.PI * 45; loaderProgress.style.strokeDashoffset = circumference; const interval = setInterval(() => { progress += 2; if (progress > 100) progress = 100; loaderPercentage.textContent = `${Math.floor(progress)}%`; const offset = circumference - (progress / 100) * circumference; loaderProgress.style.strokeDashoffset = offset; if (progress >= 100) { clearInterval(interval); setTimeout(() => { reportLoading.hidden = true; reportFinal.hidden = false; }, 500); } }, 60); }
-    const downloadBtn = document.getElementById('download-btn');
-    downloadBtn.addEventListener('click', () => { const content = "Simulated yearly report. Processed on: " + new Date().toUTCString(); const blob = new Blob([content], { type: 'text/plain' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Yearly-Report.txt'; a.click(); URL.revokeObjectURL(a.href); });
+
+
+    // --- File Handling ---
+    function handleFiles(files) {
+        // (This function is from the previous step and remains correct)
+        const uploadError = document.getElementById('upload-error');
+        uploadError.hidden = true;
+        if (files.length === 0) return;
+        const file = files[0];
+        if (file.type !== 'application/pdf') {
+            uploadError.textContent = 'Error: Only PDF files are accepted.';
+            uploadError.hidden = false;
+            return;
+        }
+        if (uploadTitle) uploadTitle.hidden = true;
+        dropZone.hidden = true;
+        const iconUrl = "https://cdn-icons-png.flaticon.com/512/16425/16425457.png";
+        fileList.innerHTML = `<li><img src="${iconUrl}" alt="PDF Icon"><span>${file.name} (${(file.size / 1024).toFixed(1)} KB)</span></li>`;
+        uploadPreview.hidden = false;
+    }
+
+
+    // --- Report Generation Logic ---
+    function triggerReportGeneration() {
+        // Step 1: Mark the report card as initializing
+        const reportCard = document.querySelector('.report-card');
+        reportCard.classList.add('initializing');
+
+        // Step 2: Prepare UI
+        generatingSubtitle.hidden = true;
+        reportFinalState.hidden = true;
+        reportLoadingState.hidden = false;
+        reportFinalState.classList.remove('show-download');
+
+        // Step 3: Wait briefly to show the centered loader before progress starts
+        setTimeout(() => {
+            // Remove "initializing" once loader begins
+            reportCard.classList.remove('initializing');
+            generatingSubtitle.hidden = false;
+
+            let progress = 0;
+            const circumference = 2 * Math.PI * 45;
+
+            const interval = setInterval(() => {
+                progress += 2;
+                if (progress > 100) progress = 100;
+
+                loaderPercentage.textContent = `${Math.floor(progress)}%`;
+                const offset = circumference - (progress / 100) * circumference;
+                loaderProgressCircle.style.strokeDashoffset = offset;
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        reportLoadingState.hidden = true;
+                        generatingSubtitle.hidden = true;
+                        reportFinalState.hidden = false;
+                        reportFinalState.classList.add('show-download');
+                    }, 500);
+                }
+            }, 60);
+        }, 400); // small delay to let the loader fade in at center
+    }
+ 
+
+
+    // --- Submit Button Main Action ---
+    submitBtn.addEventListener('click', () => {
+        // 1. Hide the file preview UI
+        uploadPreview.hidden = true;
+        dropZone.hidden = false;
+        if (uploadTitle) uploadTitle.hidden = false;
+        fileInput.value = '';
+
+        // 2. Reset the report card to its initial "loading" state before starting
+        reportFinalState.hidden = true;
+        reportLoadingState.hidden = false;
+        generatingSubtitle.hidden = true;
+        loaderPercentage.textContent = '0%';
+        const circumference = 2 * Math.PI * 45;
+
+        // Instantly reset the progress circle without animation
+        loaderProgressCircle.style.transition = 'none';
+        loaderProgressCircle.style.strokeDashoffset = circumference;
+
+        // Force browser to apply the style change immediately
+        loaderProgressCircle.offsetHeight; 
+
+        // Re-enable the animation for the progress fill
+        loaderProgressCircle.style.transition = 'stroke-dashoffset 0.5s linear';
+
+        // 3. Start the report generation process
+        triggerReportGeneration();
+    });
 
     // --- START THE APP ---
     initializeDashboard();

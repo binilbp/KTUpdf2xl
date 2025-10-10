@@ -117,7 +117,7 @@
                 </div>
             </section>
 
-            <section class="card upload-card" aria-labelledby="upload-title">
+            <!-- <section class="card upload-card" aria-labelledby="upload-title">
                 <h2 id="upload-title" class="card-title-center">Upload New Sheet</h2>
                 <div id="drop-zone" class="drop-zone" role="button" tabindex="0" aria-label="Drag and drop a PDF file here, or click to select a file">
                     <input type="file" id="file-input" accept=".pdf" hidden>
@@ -131,12 +131,53 @@
                     <button id="submit-btn" class="submit-button">Submit</button>
                 </div>
                 <p id="upload-error" class="upload-error" role="alert" hidden></p>
+            </section> -->
+
+            <section class="card upload-card" aria-labelledby="upload-title">
+                 <h2 id="upload-title" class="card-title-center">Upload New Sheet</h2>
+
+                 <div id="drop-zone" class="drop-zone" role="button" tabindex="0" aria-label="Drag and drop a PDF file here, or click to select a file">
+                     <input type="file" id="file-input" accept=".pdf" hidden>
+
+                     <div class="drop-zone-prompt">
+                         <svg viewBox="0 0 640 512" class="upload-svg"><path d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128H144zm79-217c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l39-39V392c0 13.3 10.7 24 24 24s24-10.7 24-24V257.9l39 39c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-80-80c-9.4-9.4-24.6-9.4-33.9 0l-80 80z"></path></svg>
+                         <p>Drag & drop PDF here</p>
+                         <p class="upload-cta">or click to browse</p>
+                     </div>
+                 
+                     <div class="drop-zone-overlay">Drag and Drop</div>
+                 </div>
+             
+                 <div id="upload-preview" class="upload-preview" hidden>
+                     <h3>Ready to Submit</h3>
+                     <ul id="file-list"></ul>
+                     <button id="submit-btn" class="submit-button">Submit</button>
+                 </div>
+             
+                 <p id="upload-error" class="upload-error" role="alert" hidden></p>
+            </section>
+             
+            <section class="card report-card" aria-live="polite">
+                 <div id="report-loading-state" class="report-content-wrapper">
+                      <div class="loader-wrapper">
+                          <svg class="loader-svg" viewBox="0 0 100 100">
+                              <circle class="loader-bg" cx="50" cy="50" r="45"></circle>
+                              <circle id="loader-progress-circle" class="loader-progress" cx="50" cy="50" r="45"></circle>
+                          </svg>
+                          <span id="loader-percentage" class="loader-percentage">0%</span>
+                      </div>
+                     <p id="generating-subtitle" hidden>Generating report...</p>
+                 </div>
+
+                 <div id="report-final-state" class="report-content-wrapper" hidden>
+                     <button id="download-btn" class="download-button"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Download Report</button>
+                 </div>
             </section>
 
-            <section class="card report-card" aria-live="polite">
+            <!-- <section class="card report-card" aria-live="polite">
                 <div id="report-initial-state" class="report-content-wrapper">
-                    <!-- <img src="https://plus.unsplash.com/premium_photo-1673514503558-e7ed72105d4d?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Stylized illustration of a document" class="report-image initial-image"> -->
-                </div>
+                     <img src="https://plus.unsplash.com/premium_photo-1673514503558-e7ed72105d4d?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Stylized illustration of a document" class="report-image initial-image">
+                 </div>
                 <div id="report-loading-state" class="report-content-wrapper" hidden>
                      <div class="loader-wrapper">
                         <svg class="loader-svg" viewBox="0 0 100 100">
@@ -148,11 +189,11 @@
                     <p>Generating report...</p>
                 </div>
                 <div id="report-final-state" class="report-content-wrapper" hidden>
-                    <!-- <img src="https://plus.unsplash.com/premium_photo-1673514503558-e7ed72105d4d?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Yearly report illustration" class="report-image final-image"> -->
+                    <img src="https://plus.unsplash.com/premium_photo-1673514503558-e7ed72105d4d?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Yearly report illustration" class="report-image final-image">
                     <h2 id="report-title" class="card-title-center">Report Ready</h2>
                     <button id="download-btn" class="download-button"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Download Report</button>
                 </div>
-            </section>
+            </section>  -->
 
             <section class="card misc-card" aria-labelledby="sheets-title">
                 <h2 id="sheets-title" class="sr-only">New sheets added</h2>
