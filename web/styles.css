@@ -1,419 +1,793 @@
-@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap');
-
-:root{
-    --bg-color: #7494EC;
-    --bg-color-drop: white;
-    --border-color: #A8B3E3;
-    --button-color: #5874C6;
-    --list-color: #707EA0;
+/* =========================================================
+   🎨 PALETTE & BASE STYLES
+========================================================= */
+:root {
+    --bg-main: linear-gradient(to bottom, #f5f4fbce, #eae4fcde);
+    --bg-card-gradient: linear-gradient(to bottom, #f5f4fb, #e5e4fa);
+    --heading-color: #001f3f;
+    --primary-purple: #bcafd1;
+    --text-primary: #1f2937;
+    --text-secondary: #374151;
+    --text-hint: #6b7280;
+    --border-color: #e0e0e8;
+    --separator-color: #d1d5db;
+    --shadow-color: rgba(0, 0, 0, 0.05);
+    --pass-color: #28a745;
+    --fail-color: #dc3545;
+    --font-family: 'Inter', sans-serif;
+    --border-radius: 14px;
+    --grid-gap: 2rem;
+    --card-padding: 2rem;
 }
 
-*{
-    font-family: 'Ubuntu', sans-serif;
-}
-
-body{
-    background-color: var(--bg-color);
-    padding: 30px;
-    margin: 0px;
-}
-
-.drag-drop-section{
-    position: relative;
-    text-align: center;
-    width: 100%;
-    max-width: 500px;
-    min-height: 435px;
-    margin: 200px auto;
-    background-color: var(--bg-color-drop);
-    border-radius: 16px;
-    box-shadow: rgba(255, 255, 255, 0.1) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
-}
-
-.header-section{
-    padding: 25px 0px;
-}
-
-.header-section h1 {
-    font-weight: 500px;
-    font-size: 1.7rem;
-    text-transform: uppercase;
-    color: var(--bg-color);
-    margin: 0px;
-    margin-bottom: 8px;
-}
-
-.header-section p {
-    margin: 5px;
-    font-size: 0.95rem;
-    color: var(--bg-color);
-}
-
-.drop-section{
-    min-height: 250px;
-    border: 1px dashed var(--border-color);
-    border-radius: 12px;
-    background-image: linear-gradient(180deg, white, #F1F6FF);
-    margin: 5px 35px 35px 35px;
-    position: relative;
-}
-
-.drop-section div.col:first-child{
-    opacity: 1;
-    visibility: visible;
-    transition-duration: 0.2s;
-    transform: scale(1);
-    width: 200px;
-    margin: auto;
-}
-
-.drop-section div.col:last-child{
-    font-size: 40px;
-    font-weight: 700;
-    color: #c0cae1;
-    position: absolute;
-    top: 0px;
-    bottom: 0px;
-    left: 0px;
-    right: 0px;
-    margin: auto;
-    width: 200px;
-    height: 55px;
-    pointer-events: none;
-    opacity:0;
-    visibility: hidden ;
-    transform: scale(0.6);
-    transition-duration: 0.2s;
-}
-
-/* Drag over class in JS */
-
-.drag-over-effect div.col:first-child{
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: scale(1.1);
-}
-
-.drag-over-effect div.col:last-child{
-    opacity: 1;
-    visibility: visible;
-    transform: scale(1);
-}
-
-.drop-section .cloud{
-    margin-top: 25px;
-    margin-bottom: 20px;
-    min-height: 100px;
-}
-
-.drop-section span,
-.drop-section button{
-    display: block;
-    margin: auto;
-    color: #707EA0;
-    margin-bottom: 10px;
-}
-
-.drop-section button{
-    color: white;
-    background-color: var(--button-color);
-    border: none;
-    outline: none;
-    padding: 7px 20px;
-    border-radius: 8px;
-    margin-top: 20px;
-    cursor: pointer;
-    box-shadow: rgba(50, 50, 93, 0.25), 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px, 8px, 16px, -8px;
-}
-
-.drop-section input{
-    display: none;
-}
-
-.list-section{
-    display: none;
-    text-align: left;
-    margin: 0px 35px;
-    padding-bottom: 20px;
-}
-
-.list-section .list-title{
-    font-size: 0.95rem;
-    color: var(--list-color);
-}
-
-.list-section .pdflogo{
-   height: 45px;
-   margin-top: 10px;
-}
-
-.list-section ul{
+* {
+    box-sizing: border-box;
+    margin: 0;
     padding: 0;
 }
 
-.list-section li{
+body {
+    font-family: var(--font-family);
+    background: var(--bg-main);
+    color: var(--text-primary);
+    height: 100vh;
+}
+
+button,
+select {
+    font-family: inherit;
+}
+
+/* =========================================================
+   🧭 MAIN CONTAINER & NAVBAR
+========================================================= */
+.dashboard-container {
+    padding: 2rem;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: transparent; /* Blends with body */
+    padding: 0;
+    margin-bottom: var(--grid-gap);
+}
+
+.nav-left {
     display: flex;
     align-items: center;
-    margin: 15px 0px;
-    padding-top: 4px;
-    padding-bottom: 2px;
-    border-radius: 8px;
-    transition-duration: 0.2s;
+    gap: 2.5rem;
 }
 
-.list-section li:hover{
-    box-shadow: #E3EAF9 0px 0px 4px 0px, #E3EAF9 0px 12px 16px 0px;
+.logo-img {
+    height: 40px;
 }
 
-.list-section li .col{
-    flex: 0.1;
+.nav-separator {
+    height: 24px;
+    width: 1px;
+    background-color: var(--separator-color);
 }
 
-.list-section li .col:nth-child(1){
-    flex: 0.15;
-    text-align: center;
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 2.5rem;
 }
 
-.list-section li .col:nth-child(2){
-    flex: 0.75;
-    text-align: left;
-    font-size: 1rem;
-    color: #3e4046;
-    padding: 12px 10px;
+.nav-link {
+    text-decoration: none;
+    color: var(--text-hint);
+    font-weight: 600;
+    transition: color 0.2s;
 }
 
-.list-section li .col:nth-child(3){
-    flex: 0.1;
+.nav-link:hover,
+.nav-link.active {
+    color: var(--heading-color);
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: var(--text-hint);
+}
+
+.icon-button:hover {
+    color: var(--heading-color);
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+/* =========================================================
+   🧱 GRID LAYOUT
+========================================================= */
+.dashboard-grid {
+    display: grid;
+    gap: var(--grid-gap);
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.merged-first-row {
+    grid-column: 1 / -1;
+}
+
+/* =========================================================
+   🧾 GLOBAL CARD STYLES
+========================================================= */
+.card {
     display: flex;
     flex-direction: column;
+    padding: var(--card-padding);
+    background: var(--bg-card-gradient);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px var(--shadow-color);
+    max-height: 350px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
+    margin-bottom: 1.5rem;
 }
 
-.list-section li .col:nth-child(2) div.name{
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    max-width: 250px;
-    display: inline-block;
+.card-title-center {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--heading-color);
+    margin-bottom: 1rem;
 }
 
-/* .list-section li .col .file-name span{
-    color: #707EA0;
-    float: right;
-} */
+/* =========================================================
+   🧩 MERGED FIRST ROW
+========================================================= */
+.merged-first-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: var(--grid-gap);
+    padding: var(--card-padding);
+    background: var(--bg-card-gradient);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
 
-/* .list-section li .file-progress{
-    width: 0%;
-    height: 5px;
-    margin-top: 8px;
-    border-radius: 8px;
-    background-color: #dee6fd;
-} */
+.merged-first-row > .card {
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+}
 
-/* .list-section li .file-progress span{
-    display: block;
-    width: 0%;  
-    height: 100%;
-    border-radius: 8px;
-    background-image: linear-gradient(120deg, #6b99fd, #9385ff);
-    transition-duration: 0.4s;
-} */
+/* =========================================================
+   📊 1. SUMMARY CARD
+========================================================= */
+.summary-card {
+    justify-content: space-between;
+    gap: 0.5rem;
+}
 
-.list-section li .col .file-size{
+.summary-description {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--heading-color);
+    line-height: 1.4;
+    margin-bottom: 1rem;
+}
+
+.branch-selector-container {
+    margin-top: 0.5rem;
+}
+
+.branch-selector-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    width: auto;
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    background-color: white;
+}
+
+.branch-label {
     font-size: 0.75rem;
-    margin-top: 5px;
-    color: #707EA0;
+    font-weight: 700;
+    color: var(--heading-color);
+    letter-spacing: 0.5px;
 }
 
-.list-section li .col .cross,
-.list-section li .col .trash{
-    fill: #8694d2;
-    border-radius: 50%;
+.vertical-separator {
+    width: 1px;
+    height: 20px;
+    background-color: var(--border-color);
+}
+
+.custom-select-wrapper {
+    position: relative;
+}
+
+.custom-select-wrapper::after {
+    content: '▼';
+    font-size: 0.6rem;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-secondary);
+}
+
+#branch-select {
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    background: none;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    color: var(--text-hint);
+    padding-right: 1rem;
+}
+
+.summary-footer {
+    margin-top: auto;
+}
+
+.grade-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.grade-percentage {
+    font-size: 4.5rem;
+    font-weight: 800;
+    color: var(--heading-color);
+    line-height: 1;
+}
+
+.last-updated {
+    font-size: 0.875rem;
+    color: var(--text-hint);
+    margin-top: 0.5rem;
+}
+
+/* =========================================================
+   📈 2. GRADE ANALYTICS & BEST OF BRANCH
+========================================================= */
+.analytics-card h2,
+.best-card h2 {
+    color: var(--heading-color);
+    font-weight: 700;
+    margin-left: 2rem;
+}
+
+.chart-container {
+    flex-grow: 1;
+    position: relative;
+}
+
+.small-select {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    background-color: white;
+}
+
+.student-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.50rem;
+    flex-grow: 1;
+    margin-left: 2.5rem;
+}
+
+.student-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.student-detail {
+    font-size: 0.875rem;
+    color: var(--text-hint);
+}
+
+.view-list-button {
+    background: none;
+    border: none;
+    text-align: right;
+    color: var(--heading-color);
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+/* =========================================================
+   🥧 3. DONUT CARD & NAVIGATOR
+========================================================= */
+.subject-navigator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.active-subject-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--heading-color);
+}
+
+.nav-arrow {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
     cursor: pointer;
 }
 
-.list-section li .col .trash{
-    color: #e77474;
+.nav-arrow:disabled {
+    color: var(--border-color);
+    cursor: not-allowed;
 }
 
-.list-section li.complete span,
-.list-section li.complete .file-progress,
-.list-section li.complete .cross{
-    display: none;
-}
-
-.list-section li.in-prog .file-size,
-.list-section li.in-prog .tick{
-    display: none;
-}
-
-
-.list-section button {
-   position: relative;
-   width: 13em;
-   height: 2.3em;
-   border: none;
-   border-radius: 12px;
-   background-color: var(--button-color);
-   color: white;
-   text-transform: uppercase;
-   overflow: hidden;
-   display: flex;
-   justify-content: center;
-   align-items: center;
-   top: 100%;
-   left: 50%;
-   transform: translate(-50%, -50%);
-   cursor: pointer;
-   transition: background-color 0.3s;
-}
-  
-.list-section button::before {
-  content: '';
-  position: absolute;
-  left: -100%;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  background-color: rgb(21, 67, 160); /* loader color */
-  background: linear-gradient(
-    0deg,
-    rgba(135,158,226,255) 0%,
-     rgb(125, 154, 235) 100%
-  );
-  transition: transform 0.8s ease;
-  z-index: 0;
-}
-
-.list-section button.loading::before {
-  animation: slide-loader 1.5s forwards;
-}
-
-.list-section button span {
-  z-index: 1;
-  transition: transform 0.4s ease;
-}
-
-@keyframes slide-loader {
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-
-.download-btn{
-  position: relative;
-  display: none;
-  align-items: center;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-transform: uppercase;
-  top: 100%;
-  margin-top: 10%;
-  font-size: 13.333px;
-  padding: 7px 20px;
-  justify-content: center;
-  background-color: white;
-  color: #5874C6;
-  box-shadow: rgba(50, 50, 93, 0.25), 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px, 8px, 16px, -8px;
-  border: none;
-  border-radius: 12px;
-  height: 2.3em;
-  width: 13em;
-  overflow: hidden;
-  cursor: pointer;
-}
- 
-/* Analysis Section */
-
-.chart-container {
+.donut-chart-wrapper {
     position: relative;
-    display: none;
-    justify-content: center;
-    flex-direction: row;
-    gap: 60px;
-    margin-top: 20px;
-    opacity: 0;
-    transition: opacity 0.6s ease;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto;
 }
 
-.chart-container.visible{
-    opacity: 1;
+.donut-center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
 }
 
-.chart-box {
-    width: 600px;
-    height: 400px;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+.donut-percentage {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--heading-color);
+}
+
+.donut-label {
+    font-size: 0.875rem;
+    color: var(--text-hint);
+}
+
+/* --- Donut Legend --- */
+.donut-legend {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.legend-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+.legend-dot.passed {
+    background-color: var(--pass-color);
+}
+
+.legend-dot.failed {
+    background-color: var(--fail-color);
+}
+
+/* =========================================================
+   📂 4. UPLOAD, REPORT, & MISC CARDS
+========================================================= */
+/* .upload-card {
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    text-align: center;
 }
 
-.chart-container h2 {
-    margin: 0 0 15px 0;
-    color: #333;
-    font-weight: 600;
+.drop-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    width: 100%;
+    cursor: pointer;
+    background-color: #bcafd141;
+}
+
+.drop-zone.dragover {
+    background-color: var(--accent-secondary);
+}
+
+.drop-zone p {
+    margin: 0;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.upload-svg {
+    height: 48px;
+    width: 48px;
+    margin-bottom: 1rem;
+    fill: var(--text-hint);
+}
+
+.loader-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 1rem;
+} */
+
+
+/* =========================================================
+    📁 UPLOAD CARD & DROP ZONE
+========================================================= */
+
+/* Main container for the upload component */
+.upload-card {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+/* The drop zone area */
+.drop-zone {
+    position: relative;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    width: 100%;
+    cursor: pointer;
+    background-color: #bcafd141;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    overflow: hidden;
+}
+
+.drop-zone:hover {
+    background-color: #d8cdef56;
+    border-color: #b39ddb;
+}
+
+/* The initial content (icon and text) inside the drop zone */
+.drop-zone-prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* The "Drag and Drop" text overlay shown during drag */
+.drop-zone-overlay {
+    display: flex; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     font-size: 1.5rem;
-    user-select: none;
+    font-weight: 700;
+    color: var(--heading-color);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
 }
 
-canvas {
-    background: #ffffffcc;
-    border-radius: 12px;
-    /* box-shadow: 0 3px 10px rgba(0,0,0,0.07); */
+/* Styles applied when a file is being dragged over the drop zone */
+.drop-zone.dragover {
+    background-color: #d8cdef88;
+    border-color: var(--primary-purple);
 }
 
-/* pagination */
-
-.chart-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 1rem;
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
+.drop-zone.dragover .drop-zone-prompt {
+    opacity: 0; /* Hides the initial content */
+    visibility: hidden;
 }
 
-.nav-btn {
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-  transition: transform 0.3s ease;
+.drop-zone.dragover .drop-zone-overlay {
+    display: flex; /* Shows the overlay */
+    opacity: 1;
+    z-index: 1;
 }
 
-.nav-btn:hover {
-  transform: scale(1.1);
+/* The cloud icon */
+.upload-svg {
+    height: 48px;
+    width: 48px;
+    margin-bottom: 1rem;
+    fill: var(--text-hint);
 }
 
-.left-btn {
-  transform: rotate(180deg);
+/* List for the file preview after selection */
+#file-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 1.5rem 0;
+    width: 100%;
+    text-align: left;
 }
 
-.pagination-bullets {
-  display: flex;
-  gap: 8px;
+#file-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: #f5f4fb;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
 }
 
-.pagination-bullets .bullet {
-  width: 10px;
-  height: 10px;
-  background-color: #bbb;
-  border-radius: 50%;
-  transition: background-color 0.3s ease;
-  cursor: pointer;
+#file-list img {
+    width: 24px;
+    height: 24px;
 }
 
-.pagination-bullets .bullet.active {
-  background-color: #5874C6;
+/* The submit button in the preview section */
+.submit-button {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    background-color: var(--heading-color);
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
 }
+
+.submit-button:hover {
+    background-color: #003366;
+}
+
+.submit-button:active {
+    transform: scale(0.98);
+}
+
+
+
+/* =========================================================
+    📜 REPORT CARD & LOADER
+========================================================= */
+
+/* Main container for the report component */
+.report-card {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+    min-height: 280px;
+}
+
+/* Wrapper for content inside the report card (loading/final states) */
+.report-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.report-card.initializing #report-final-state,
+.report-card.initializing #generating-subtitle {
+    display: none !important;
+}
+
+.report-card.initializing .loader-wrapper {
+    opacity: 0;
+    animation: fadeInCenter 0.6s ease forwards;
+}
+
+@keyframes fadeInCenter {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Container for the circular loader */
+.loader-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 1rem;
+    margin-top: 100px;
+}
+
+/* SVG element for the loader */
+.loader-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    /* margin-top: 100px; */
+}
+
+/* The grey background circle of the loader */
+.loader-bg {
+    fill: none;
+    stroke: var(--border-color);
+    stroke-width: 10;
+}
+
+/* The green progress circle of the loader */
+.loader-progress {
+    fill: none;
+    stroke: var(--pass-color);
+    stroke-width: 10;
+    stroke-linecap: round;
+    stroke-dasharray: 283; /* Circumference of the circle */
+    stroke-dashoffset: 283; /* Starts empty */
+    transition: stroke-dashoffset 0.5s linear;
+}
+
+/* The percentage text in the center of the loader */
+.loader-percentage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* The final download button */
+.download-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: var(--heading-color); /* Black background */
+    color: #ffffff; /* White text */
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.download-button:hover {
+    background-color: #333333; /* Dark grey on hover */
+}
+
+/* Hide download button by default */
+#report-final-state .download-button {
+    display: none;
+}
+
+/* When report is completed, show it with fade-in */
+#report-final-state.show-download .download-button {
+    display: inline-flex;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+/* Simple fade-in animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+
+/* =========================================================
+   💜 7. misc CARD
+========================================================= */
+.misc-card {
+    background: var(--primary-purple);
+    color: #ffffff;
+    justify-content: space-between;
+}
+
+.sheets-stat span {
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.sheets-stat p {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.today-update {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 99px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    align-self: flex-start;
+}
+
+.contributors {
+    font-weight: 500;
+}
+
+.avatar-stack {
+    display: flex;
+    margin-top: 0.5rem;
+}
+
+.avatar-chip {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--primary-purple);
+    margin-left: -10px;
+}
+
+.avatar-chip:first-child {
+    margin-left: 0;
+}
+
+.join-link {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    align-self: flex-end;
+}
+
+/* =========================================================
+   📱 RESPONSIVENESS
+========================================================= */
+@media (max-width: 1200px) {
+    .merged-first-row {
+        grid-template-columns: 1fr;
+    }
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    .nav-links,
+    .nav-separator {
+        display: none;
+    }
+    .navbar {
+        padding-bottom: 1rem;
+    }
+}
+/* =========================================================
+   ✅ END OF CSS FILE
+========================================================= */

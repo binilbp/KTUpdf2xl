@@ -42,7 +42,7 @@ app.include_router(user_file_router)
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
-app.mount("/static", StaticFiles(directory="web", html=True), name="static") # y this still here idk?
+app.mount("/", StaticFiles(directory="web", html=True), name="static") # y this still here idk?
 
 @app.get("/protected") # Use for role-based access (Admin / User)  get user data like this for future auth calls
 def read_protected(user : UserOutput = Depends(get_current_user)):
