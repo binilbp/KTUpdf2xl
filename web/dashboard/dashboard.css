@@ -224,3 +224,20 @@ body {
 .close-btn:hover {
   color: #666;
 }
+
+/* Style the file list items */
+#fileList li {
+  padding: 10px 15px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  background-color: #f5f5f5; /* light gray background */
+  cursor: pointer; /* shows pointer on hover */
+  transition: all 0.2s ease-in-out; /* smooth hover effect */
+}
+
+/* Hover effect */
+#fileList li:hover {
+  background-color: #e0e0e0; /* slightly darker gray */
+  transform: translateX(5px); /* subtle shift to right */
+  font-weight: bold; /* make text bolder */
+}

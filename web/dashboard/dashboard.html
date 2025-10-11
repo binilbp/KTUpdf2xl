@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KTUAnalyser</title>
   <link rel="stylesheet" href="dashboard.css" />
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
   <!-- Header -->
@@ -28,11 +31,8 @@
         <button class="add-btn" id="openModalBtn">+</button>
       </div>
 
-      <ul>
-        <li>Item 1</li>
-        <li>Item 2</li>
-        <li>Item 3</li>
-        <li>Item 4</li>
+      <ul id="fileList">
+        <!--I read the docs content will add dynamically-->
       </ul>
     </section>
 
@@ -59,6 +59,6 @@
     </div>
   </div>
 
-  <script src="dashboard.js"></script>
+  <script type="module" src="dashboard.js"></script>
 </body>
 </html>

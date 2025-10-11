@@ -45,3 +45,12 @@ class UserService:
         #create file record
         created_file = self.__userRepository.create_user_file(user_id, file_data=file_data)
         return created_file
+    
+    def get_user_files_by_user_id(self, user_id: int):
+        #fetch all records for a user
+        user = self.__userRepository.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User Not Found")
+        
+        user_files = self.__userRepository.get_user_files_by_user_id(user_id)
+        return user_files

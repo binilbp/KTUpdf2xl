@@ -1,4 +1,4 @@
-// dashboard.js
+import { fetchUserFiles } from "./api.js";
 
 // Get JWT token
 const token = localStorage.getItem('jwtToken');
@@ -9,6 +9,98 @@ if (!token) {
 // DOM elements
 const usernameEl = document.getElementById('username');
 const avatarEl = document.getElementById('userAvatar');
+
+function renderCharts(chartsData) {
+    const topChartEl = document.querySelector('.top-chart p');
+    const bottomChartEl = document.querySelector('.bottom-chart p');
+
+    // Clear previous content
+    topChartEl.innerHTML = '';
+    bottomChartEl.innerHTML = '';
+
+    if (!chartsData || chartsData.length === 0) {
+        topChartEl.textContent = 'No chart data available';
+        bottomChartEl.textContent = 'No chart data available';
+        return;
+    }
+
+    // --- TOP CHART (Bar Chart) ---
+    topChartEl.innerHTML = '<canvas id="topChartCanvas"></canvas>';
+    const bar_ctx = document.getElementById('topChartCanvas').getContext('2d');
+
+    // Destroy previous chart if exists
+    if (window.topChart) window.topChart.destroy();
+
+    window.topChart = new Chart(bar_ctx, {
+        type: 'bar',
+        data: {
+            labels: chartsData.map(d => d.Department),
+            datasets: [{
+                label: 'Pass Percentage',
+                data: chartsData.map(d => d.PassPercentage),
+                backgroundColor: "#5874C6",
+                borderColor: '#fff',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 900,
+                easing: 'easeOutCubic'
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: context => {
+                            const label = context.label || '';
+                            const value = context.parsed.y || 0;
+                            return `${label}: ${value}%`;
+                        }
+                    }
+                },
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: { boxWidth: 20, padding: 15 }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Pass Percentage' }
+                },
+                x: {
+                    title: { display: true, text: 'Department' }
+                }
+            }
+        }
+    });
+
+    // --- BOTTOM CHART (Placeholder) ---
+    bottomChartEl.textContent = JSON.stringify(chartsData, null, 2);
+}
+
+
+// Fetch and render user files
+async function renderUserFiles() {
+  const files = await fetchUserFiles(token);
+  const listEl = document.getElementById('fileList');
+  listEl.innerHTML = ''; // Clear current list
+
+  files.forEach(f => {
+    const li = document.createElement('li');
+    li.textContent = f.filename;
+
+    //click handler
+    li.addEventListener('click', () => {
+      renderCharts(f.json_charts);
+    });
+
+    listEl.appendChild(li);
+  });
+}
 
 // Fetch user info from backend
 async function fetchUserInfo() {  //only api call tht lives here add others to api.js
@@ -40,7 +132,7 @@ async function fetchUserInfo() {  //only api call tht lives here add others to a
 }
 
 // Run on page load
-fetchUserInfo();
+fetchUserInfo().then(renderUserFiles);;
 
 
 // MODAL LOGIC

@@ -8,7 +8,7 @@ from db.app.util.protectRoute import get_current_user
 
 router = APIRouter(prefix="/userfiles", tags=["user files"])
 
-@router.post("/test", response_model=UserFileOutput)
+@router.post("/test", response_model=UserFileOutput) #dont use this in prod
 def test_userfile_endpoint(
     file_data: UserFileCreate,
     db: Session = Depends(get_db),
@@ -19,3 +19,11 @@ def test_userfile_endpoint(
     """
     service = UserService(session=db)
     return service.add_user_file(user_id=user.id, file_data=file_data)
+
+@router.get("/user/files", response_model=list[UserFileOutput])
+def get_user_files(
+    db: Session = Depends(get_db),
+    user: UserOutput = Depends(get_current_user)
+):
+    service = UserService(session=db)
+    return service.get_user_files_by_user_id(user_id=user.id)

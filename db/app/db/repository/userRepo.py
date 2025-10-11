@@ -41,3 +41,16 @@ class UserRepository(BaseRepository):
         json_charts=new_file.json_charts,
         created_at=new_file.created_at.isoformat()  # convert to string , no need for conversion but the responce is not validating correctly
     )
+
+    def get_user_files_by_user_id(self, user_id: int):
+        files = self.session.query(UserFile).filter_by(user_id=user_id).all()
+        return [
+            {
+                "id": f.id,
+                "filename": f.filename,
+                "created_at": f.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "download_path": f.download_path,
+                "json_charts": f.json_charts
+            }
+            for f in files
+        ]

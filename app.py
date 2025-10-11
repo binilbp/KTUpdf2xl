@@ -37,7 +37,7 @@ app.add_middleware(
 )
 app.include_router(router=authrouter, tags=["auth"], prefix="/auth")
 #test
-app.include_router(user_file_router)
+app.include_router(user_file_router) # remove this
 
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
