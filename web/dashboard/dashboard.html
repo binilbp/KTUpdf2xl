@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KTUAnalyser</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <h1 class="logo">KTUAnalyser</h1>
+    </div>
+
+    <div class="header-right">
+      <span id="username" class="username">Loading...</span>
+      <button id="userAvatar" class="user-avatar">U</button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-layout">
+    <!-- Left Section -->
+    <section class="left-panel">
+      <div class="list-header">
+        <h2>Your Sheets</h2>
+        <button class="add-btn" id="openModalBtn">+</button>
+      </div>
+
+      <ul>
+        <li>Item 1</li>
+        <li>Item 2</li>
+        <li>Item 3</li>
+        <li>Item 4</li>
+      </ul>
+    </section>
+
+    <!-- Right Section -->
+    <section class="right-panel">
+      <div class="chart-section top-chart">
+        <h3>Top Chart</h3>
+        <p>Chart content placeholder</p>
+      </div>
+      <div class="chart-section bottom-chart">
+        <h3>Bottom Chart</h3>
+        <p>Chart content placeholder</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- 📂 Modal for Upload -->
+  <div id="uploadModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeModalBtn">&times;</span>
+      <h2>Upload PDF</h2>
+      <input type="file" id="pdfFile" accept=".pdf" />
+      <button id="confirmUpload">Confirm</button>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

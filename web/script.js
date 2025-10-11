@@ -1,320 +1,85 @@
-const dropArea = document.querySelector('.drop-section');
-const listSection = document.querySelector('.list-section');
-const listContainer = document.querySelector('.list');
-const fileSelector = document.querySelector('.file-selector');
-const fileSelectorInput = document.querySelector('.file-selector-input');
-const button = document.querySelector('.list-section button');
-const downloadButton = document.querySelector('.download-btn');
-const analysisSection = document.querySelector('.chart-container');//Analysis Section
-const cards = document.querySelectorAll('.card')
-const bar_ctx = document.getElementById('barChart').getContext('2d');
+let isLogin = true; // toggle state
 
-let currentIndex = 0;
-let chartInstance = null;
-let downloadUrl = null; 
-let JSONdata = null;
-let selectedFile = null; // Store selected file until Convert is clicked
+const toggleBtn = document.getElementById('toggleForm');
+const formTitle = document.getElementById('formTitle');
+const submitBtn = document.getElementById('submitBtn');
 
-// Upload files with browse button
-fileSelector.addEventListener('click', () => fileSelectorInput.click());
+toggleBtn.addEventListener('click', () => {
+    isLogin = !isLogin;
 
-fileSelectorInput.addEventListener('change', () => {
-    const file = fileSelectorInput.files[0];
-    if (file && isPDF(file.type)) {
-        prepareFile(file);
-    }
+    document.getElementById('user_name').style.display = isLogin ? 'none' : 'block';
+    document.getElementById('institution').style.display = isLogin ? 'none' : 'block';
+    document.getElementById('designation').style.display = isLogin ? 'none' : 'block';
+
+    formTitle.textContent = isLogin ? 'Login' : 'Sign Up';
+    submitBtn.textContent = isLogin ? 'Login' : 'Sign Up';
+    toggleBtn.textContent = isLogin ? 'Sign up' : 'Login';
 });
 
-// Drag file over the area
-dropArea.addEventListener('dragover', (e) => {
+document.getElementById('authForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    if ([...e.dataTransfer.items].some(item => isPDF(item.type))) {
-        dropArea.classList.add('drag-over-effect');
-    }
-});
 
-dropArea.addEventListener('dragleave', () => {
-    dropArea.classList.remove('drag-over-effect');
-});
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const messageEl = document.getElementById('message');
 
-// Drop file in area
-dropArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropArea.classList.remove('drag-over-effect');
+    messageEl.textContent = '';
 
-    const file = (e.dataTransfer.items?.[0]?.getAsFile?.()) || e.dataTransfer.files[0];
-
-    if (file && isPDF(file.type)) {
-        prepareFile(file);
-    }
-});
-
-function isPDF(type) {
-    return type === 'application/pdf';
-}
-
-function prepareFile(file) {
-    selectedFile = file;
-    listContainer.innerHTML = '';
-    listSection.style.display = 'block';
-
-    const li = document.createElement('li');
-    li.classList.add('in-prog');
-    li.innerHTML = `
-        <div class="col">
-            <img class="pdflogo" src="./icons/pdf.svg" alt="pdf-logo">
-        </div>
-        <div class="col">
-            <div class="file-name">
-                <div class="name">${file.name}</div>
-                <span></span>
-            </div>
-            <div class="file-progress"><span></span></div>
-            <div class="file-size">${(file.size / (1024 * 1024)).toFixed(3)} MB</div>
-        </div>
-        <div class="col">
-            <i class="fa-solid fa-trash-can trash"></i>
-        </div>`;
-
-    listContainer.prepend(li);
-}
-
-// Convert button (trigger upload)
-button.addEventListener('click', () => {
-    if (!selectedFile) return;
-
-    const li = listContainer.querySelector('li');
-    const progressSpan = li.querySelector('.file-progress span');
-    const percentText = li.querySelector('.file-name span');
-
-    button.disabled = true;
-    button.classList.add('loading');
-    button.querySelector('span').textContent = 'Converting...';
-
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-
-    fetch('/process-pdf', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("JSON received from backend:", data);
-        JSONdata = data.data;
-
-        downloadUrl = data.download_url;
-        downloadButton.style.display = 'flex';
-
-        function renderPaginationBullets() {
-            const container = document.getElementById("paginationBullets");
-            container.innerHTML = '';
-
-            JSONdata.forEach((_, idx) => {
-                const bullet = document.createElement("div");
-                bullet.classList.add("bullet");
-                if (idx === currentIndex) bullet.classList.add("active");
-
-                bullet.addEventListener("click", () => {
-                    currentIndex = idx;
-                    renderChart(currentIndex);
-                });
-
-                container.appendChild(bullet);
+    try {
+        if (isLogin) {
+            // --- LOGIN FLOW ---
+            const loginResp = await fetch('/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
             });
-        }
+            const loginResult = await loginResp.json();
 
-
-        //button go brr brrr....
-        li.classList.add('complete');
-        li.classList.remove('in-prog');
-        percentText.innerText = '100%';
-        progressSpan.style.width = '100%';
-
-        button.querySelector('span').textContent = 'Done!';
-        setTimeout(() => {
-            button.querySelector('span').textContent = 'Submitted';
-            button.disabled = false;
-        }, 2000);
-
-        analysisSection.style.display = 'flex';
-
-        setTimeout(() => {
-            analysisSection.classList.add('visible');
-        }, 100);
-
-
-        // //Analysis Scroll animation    
-        // setTimeout(() => {
-        //     analysisSection.scrollIntoView({ behavior: 'smooth' ,block: 'start'});
-        // }, 300);
-
-        const offset = analysisSection.offsetTop - (window.innerHeight / 2) + (analysisSection.offsetHeight / 2);
-        window.scrollTo({
-        top: offset,
-        behavior: "smooth"
-        });
-
-        // Cards Fade in effect
-        cards.forEach((card, index) => {
-        setTimeout(() => {
-            card.classList.add('visible');
-        }, index * 100); // stagger effect , cards appear one after another 100ms delay
-        });
-
-        // cards[0].innerHTML = ` //how to set the content
-        //     <pre>${JSON.stringify(JSONdata, null, 2)}</pre>
-        // `;
-
-        // Bar chart view
-        const barChart = new Chart(bar_ctx, {
-            type: 'bar',  
-            data: {
-                labels: JSONdata.map(d => d.Department),
-                datasets: [{
-                    label: 'Pass Percentage',
-                    data: JSONdata.map(d => d.PassPercentage),
-                    backgroundColor: "#5874C6",
-                    borderColor: '#fff',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: {
-                    duration: 900,
-                    easing: 'easeOutCubic'
-                },
-                plugins: {
-                    tooltip: {
-                        enabled: true,
-                        callbacks: {
-                            label: context => {
-                                const label = context.label || '';
-                                const value = context.parsed.y || 0;
-                                return `${label}: ${value}%`;
-                            }
-                        }
-                    },
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: {
-                            boxWidth: 20,
-                            padding: 15
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Pass Percentage'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Department'
-                        }
-                    }
-                }
+            if (loginResult.token) {
+                localStorage.setItem('jwtToken', loginResult.token);
+                window.location.href = 'dashboard/dashboard.html';
+            } else {
+                messageEl.textContent = loginResult.message || 'Login failed';
             }
-        });
-        renderChart(currentIndex);
-    })
-    .catch(error => {
-        console.error("Upload error:", error);
-        li.classList.add('error');
-        percentText.innerText = 'Failed';
-        progressSpan.style.backgroundColor = 'red';
+        } else {
+            // --- SIGNUP FLOW ---
+            const user_name = document.getElementById('user_name').value.trim();
+            const institution = document.getElementById('institution').value.trim();
+            const designation = document.getElementById('designation').value.trim();
 
-        button.querySelector('span').textContent = 'Failed!';
-        setTimeout(() => {
-            button.querySelector('span').textContent = 'Convert';
-            button.disabled = false;
-        }, 2000);
-    });
-});
+            if (!user_name || !institution || !designation) {
+                messageEl.textContent = 'Please fill in all fields';
+                return;
+            }
 
-//Download Button
-downloadButton.addEventListener('click', () => {
-    if(!downloadUrl) return;
+            const signupResp = await fetch('/auth/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_name, institution, designation, email, password })
+            });
 
-    const a = document.createElement('a');
-    a.href = downloadUrl;
-    a.download = 'processed_output.xlsx';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-});
+            const signupResult = await signupResp.json();
 
-// Deletion
-listContainer.addEventListener('click', (e) => {
-    if (e.target.classList.contains('trash')) {
-        const fileItem = e.target.closest('li');
-        if (fileItem) {
-            const progressSpan = fileItem.querySelector('.file-progress span');
-            const percentText = fileItem.querySelector('.file-name span');
-
-            if (progressSpan) progressSpan.style.width = '0%';
-            if (percentText) percentText.innerText = '0%';
-
-            fileItem.classList.remove('complete', 'in-prog', 'error');
-
-            fileItem.remove();
-            listSection.style.display = 'none';
-            selectedFile = null;
-            fileSelectorInput.value = '';
-
-            button.disabled = false;
-            button.classList.remove('loading');
-            button.querySelector('span').textContent = 'Submit';
-        }
-    }
-});
-
-function renderChart(index) {
-    const ctx = document.getElementById("pieChart").getContext("2d");
-    const dept = JSONdata[index];
-
-    if (chartInstance) {
-        chartInstance.destroy();
-    }
-
-    chartInstance = new Chart(ctx, {
-        type: "pie",
-        data: {
-            labels: ["Pass", "Fail"],
-            datasets: [{
-                data: [dept.PassCount, dept.FailCount],
-                backgroundColor: ["#4CAF50", "#F44336"]
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: `${dept.Department}`
+            if (signupResp.ok) {
+                // Signup succeeded → now login automatically
+                const loginResp = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const loginResult = await loginResp.json();
+                if (loginResult.token) {
+                    localStorage.setItem('jwtToken', loginResult.token);
+                    window.location.href = 'dashboard/dashboard.html';
+                } else {
+                    messageEl.textContent = 'Account created, but login failed';
                 }
+            } else {
+                messageEl.textContent = signupResult.message || 'Signup failed';
             }
         }
-    });
-
-    renderPaginationBullets(); // <-- add this
-}
-
-
-function nextChart() {
-    currentIndex = (currentIndex + 1) % JSONdata.length;
-    renderChart(currentIndex);
-}
-
-function prevChart() {
-    currentIndex = (currentIndex - 1 + JSONdata.length) % JSONdata.length;
-    renderChart(currentIndex);
-}
-
+    } catch (error) {
+        messageEl.textContent = 'An error occurred';
+        console.error(error);
+    }
+});

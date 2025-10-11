@@ -1,793 +1,87 @@
-/* =========================================================
-   🎨 PALETTE & BASE STYLES
-========================================================= */
-:root {
-    --bg-main: linear-gradient(to bottom, #f5f4fbce, #eae4fcde);
-    --bg-card-gradient: linear-gradient(to bottom, #f5f4fb, #e5e4fa);
-    --heading-color: #001f3f;
-    --primary-purple: #bcafd1;
-    --text-primary: #1f2937;
-    --text-secondary: #374151;
-    --text-hint: #6b7280;
-    --border-color: #e0e0e8;
-    --separator-color: #d1d5db;
-    --shadow-color: rgba(0, 0, 0, 0.05);
-    --pass-color: #28a745;
-    --fail-color: #dc3545;
-    --font-family: 'Inter', sans-serif;
-    --border-radius: 14px;
-    --grid-gap: 2rem;
-    --card-padding: 2rem;
-}
-
+/* --- General Reset --- */
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
 }
 
 body {
-    font-family: var(--font-family);
-    background: var(--bg-main);
-    color: var(--text-primary);
-    height: 100vh;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  color: #000;
 }
 
-button,
-select {
-    font-family: inherit;
+.container {
+  width: 100%;
+  max-width: 400px;
+  padding: 40px;
+  border: 1px solid #000;
+  border-radius: 8px;
+  text-align: center;
+  transition: all 0.3s ease;
 }
 
-/* =========================================================
-   🧭 MAIN CONTAINER & NAVBAR
-========================================================= */
-.dashboard-container {
-    padding: 2rem;
+.title {
+  margin-bottom: 30px;
+  font-weight: 400;
 }
 
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: transparent; /* Blends with body */
-    padding: 0;
-    margin-bottom: var(--grid-gap);
+input {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 10px 0;
+  border: 1px solid #000;
+  border-radius: 4px;
+  outline: none;
+  transition: border 0.2s ease;
 }
 
-.nav-left {
-    display: flex;
-    align-items: center;
-    gap: 2.5rem;
+input:focus {
+  border-color: #555;
 }
 
-.logo-img {
-    height: 40px;
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #000;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+  transition: background 0.2s ease;
 }
 
-.nav-separator {
-    height: 24px;
-    width: 1px;
-    background-color: var(--separator-color);
+button:hover {
+  background-color: #333;
 }
 
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 2.5rem;
+.toggle {
+  margin-top: 15px;
+  font-size: 14px;
 }
 
-.nav-link {
-    text-decoration: none;
-    color: var(--text-hint);
-    font-weight: 600;
-    transition: color 0.2s;
+.toggle span {
+  color: #000;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
-.nav-link:hover,
-.nav-link.active {
-    color: var(--heading-color);
+.message {
+  margin-top: 15px;
+  font-size: 14px;
+  color: red;
+  min-height: 18px; /* to avoid jump on messages */
 }
 
-.nav-right {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
+/* Smooth show/hide for signup fields */
+#user_name,
+#institution,
+#designation {
+  transition: max-height 0.3s ease, opacity 0.3s ease;
 }
-
-.icon-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.5rem;
-    color: var(--text-hint);
-}
-
-.icon-button:hover {
-    color: var(--heading-color);
-}
-
-.avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-}
-
-/* =========================================================
-   🧱 GRID LAYOUT
-========================================================= */
-.dashboard-grid {
-    display: grid;
-    gap: var(--grid-gap);
-    grid-template-columns: repeat(4, 1fr);
-}
-
-.merged-first-row {
-    grid-column: 1 / -1;
-}
-
-/* =========================================================
-   🧾 GLOBAL CARD STYLES
-========================================================= */
-.card {
-    display: flex;
-    flex-direction: column;
-    padding: var(--card-padding);
-    background: var(--bg-card-gradient);
-    border-radius: var(--border-radius);
-    box-shadow: 0 2px 8px var(--shadow-color);
-    max-height: 350px;
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-
-.card-title-center {
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--heading-color);
-    margin-bottom: 1rem;
-}
-
-/* =========================================================
-   🧩 MERGED FIRST ROW
-========================================================= */
-.merged-first-row {
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr;
-    gap: var(--grid-gap);
-    padding: var(--card-padding);
-    background: var(--bg-card-gradient);
-    border-radius: var(--border-radius);
-    box-shadow: 0 2px 8px var(--shadow-color);
-}
-
-.merged-first-row > .card {
-    padding: 0;
-    background: transparent;
-    box-shadow: none;
-}
-
-/* =========================================================
-   📊 1. SUMMARY CARD
-========================================================= */
-.summary-card {
-    justify-content: space-between;
-    gap: 0.5rem;
-}
-
-.summary-description {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--heading-color);
-    line-height: 1.4;
-    margin-bottom: 1rem;
-}
-
-.branch-selector-container {
-    margin-top: 0.5rem;
-}
-
-.branch-selector-wrapper {
-    display: inline-flex;
-    align-items: center;
-    gap: 1rem;
-    width: auto;
-    border: 1px solid var(--border-color);
-    padding: 0.5rem 1rem;
-    border-radius: 0.75rem;
-    background-color: white;
-}
-
-.branch-label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--heading-color);
-    letter-spacing: 0.5px;
-}
-
-.vertical-separator {
-    width: 1px;
-    height: 20px;
-    background-color: var(--border-color);
-}
-
-.custom-select-wrapper {
-    position: relative;
-}
-
-.custom-select-wrapper::after {
-    content: '▼';
-    font-size: 0.6rem;
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-    color: var(--text-secondary);
-}
-
-#branch-select {
-    font-size: 1rem;
-    font-weight: 600;
-    border: none;
-    background: none;
-    -webkit-appearance: none;
-    appearance: none;
-    cursor: pointer;
-    color: var(--text-hint);
-    padding-right: 1rem;
-}
-
-.summary-footer {
-    margin-top: auto;
-}
-
-.grade-display {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.grade-percentage {
-    font-size: 4.5rem;
-    font-weight: 800;
-    color: var(--heading-color);
-    line-height: 1;
-}
-
-.last-updated {
-    font-size: 0.875rem;
-    color: var(--text-hint);
-    margin-top: 0.5rem;
-}
-
-/* =========================================================
-   📈 2. GRADE ANALYTICS & BEST OF BRANCH
-========================================================= */
-.analytics-card h2,
-.best-card h2 {
-    color: var(--heading-color);
-    font-weight: 700;
-    margin-left: 2rem;
-}
-
-.chart-container {
-    flex-grow: 1;
-    position: relative;
-}
-
-.small-select {
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.8rem;
-    background-color: white;
-}
-
-.student-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.50rem;
-    flex-grow: 1;
-    margin-left: 2.5rem;
-}
-
-.student-name {
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.student-detail {
-    font-size: 0.875rem;
-    color: var(--text-hint);
-}
-
-.view-list-button {
-    background: none;
-    border: none;
-    text-align: right;
-    color: var(--heading-color);
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: auto;
-    padding-top: 1rem;
-}
-
-/* =========================================================
-   🥧 3. DONUT CARD & NAVIGATOR
-========================================================= */
-.subject-navigator {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.active-subject-name {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--heading-color);
-}
-
-.nav-arrow {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: var(--text-secondary);
-    cursor: pointer;
-}
-
-.nav-arrow:disabled {
-    color: var(--border-color);
-    cursor: not-allowed;
-}
-
-.donut-chart-wrapper {
-    position: relative;
-    width: 180px;
-    height: 180px;
-    margin: 0 auto;
-}
-
-.donut-center-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-}
-
-.donut-percentage {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: var(--heading-color);
-}
-
-.donut-label {
-    font-size: 0.875rem;
-    color: var(--text-hint);
-}
-
-/* --- Donut Legend --- */
-.donut-legend {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin-top: 1.5rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-}
-
-.legend-dot {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 4px;
-    margin-right: 0.5rem;
-    vertical-align: middle;
-}
-
-.legend-dot.passed {
-    background-color: var(--pass-color);
-}
-
-.legend-dot.failed {
-    background-color: var(--fail-color);
-}
-
-/* =========================================================
-   📂 4. UPLOAD, REPORT, & MISC CARDS
-========================================================= */
-/* .upload-card {
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-
-.drop-zone {
-    border: 2px dashed var(--border-color);
-    border-radius: var(--border-radius);
-    padding: 2rem;
-    width: 100%;
-    cursor: pointer;
-    background-color: #bcafd141;
-}
-
-.drop-zone.dragover {
-    background-color: var(--accent-secondary);
-}
-
-.drop-zone p {
-    margin: 0;
-    font-weight: 500;
-    color: var(--text-secondary);
-}
-
-.upload-svg {
-    height: 48px;
-    width: 48px;
-    margin-bottom: 1rem;
-    fill: var(--text-hint);
-}
-
-.loader-wrapper {
-    position: relative;
-    width: 120px;
-    height: 120px;
-    margin-bottom: 1rem;
-} */
-
-
-/* =========================================================
-    📁 UPLOAD CARD & DROP ZONE
-========================================================= */
-
-/* Main container for the upload component */
-.upload-card {
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-
-/* The drop zone area */
-.drop-zone {
-    position: relative;
-    border: 2px dashed var(--border-color);
-    border-radius: var(--border-radius);
-    padding: 2rem;
-    width: 100%;
-    cursor: pointer;
-    background-color: #bcafd141;
-    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
-    overflow: hidden;
-}
-
-.drop-zone:hover {
-    background-color: #d8cdef56;
-    border-color: #b39ddb;
-}
-
-/* The initial content (icon and text) inside the drop zone */
-.drop-zone-prompt {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-    transition: opacity 0.2s ease-in-out;
-}
-
-/* The "Drag and Drop" text overlay shown during drag */
-.drop-zone-overlay {
-    display: flex; /* Hidden by default */
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--heading-color);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-}
-
-/* Styles applied when a file is being dragged over the drop zone */
-.drop-zone.dragover {
-    background-color: #d8cdef88;
-    border-color: var(--primary-purple);
-}
-
-.drop-zone.dragover .drop-zone-prompt {
-    opacity: 0; /* Hides the initial content */
-    visibility: hidden;
-}
-
-.drop-zone.dragover .drop-zone-overlay {
-    display: flex; /* Shows the overlay */
-    opacity: 1;
-    z-index: 1;
-}
-
-/* The cloud icon */
-.upload-svg {
-    height: 48px;
-    width: 48px;
-    margin-bottom: 1rem;
-    fill: var(--text-hint);
-}
-
-/* List for the file preview after selection */
-#file-list {
-    list-style-type: none;
-    padding: 0;
-    margin: 1.5rem 0;
-    width: 100%;
-    text-align: left;
-}
-
-#file-list li {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    background-color: #f5f4fb;
-    padding: 0.75rem 1rem;
-    border-radius: 0.75rem;
-    border: 1px solid var(--border-color);
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-}
-
-#file-list img {
-    width: 24px;
-    height: 24px;
-}
-
-/* The submit button in the preview section */
-.submit-button {
-    width: 100%;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 600;
-    color: white;
-    background-color: var(--heading-color);
-    border: none;
-    border-radius: 0.75rem;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
-}
-
-.submit-button:hover {
-    background-color: #003366;
-}
-
-.submit-button:active {
-    transform: scale(0.98);
-}
-
-
-
-/* =========================================================
-    📜 REPORT CARD & LOADER
-========================================================= */
-
-/* Main container for the report component */
-.report-card {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    overflow: hidden;
-    min-height: 280px;
-}
-
-/* Wrapper for content inside the report card (loading/final states) */
-.report-content-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-}
-
-.report-card.initializing #report-final-state,
-.report-card.initializing #generating-subtitle {
-    display: none !important;
-}
-
-.report-card.initializing .loader-wrapper {
-    opacity: 0;
-    animation: fadeInCenter 0.6s ease forwards;
-}
-
-@keyframes fadeInCenter {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-/* Container for the circular loader */
-.loader-wrapper {
-    position: relative;
-    width: 120px;
-    height: 120px;
-    margin-bottom: 1rem;
-    margin-top: 100px;
-}
-
-/* SVG element for the loader */
-.loader-svg {
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-    /* margin-top: 100px; */
-}
-
-/* The grey background circle of the loader */
-.loader-bg {
-    fill: none;
-    stroke: var(--border-color);
-    stroke-width: 10;
-}
-
-/* The green progress circle of the loader */
-.loader-progress {
-    fill: none;
-    stroke: var(--pass-color);
-    stroke-width: 10;
-    stroke-linecap: round;
-    stroke-dasharray: 283; /* Circumference of the circle */
-    stroke-dashoffset: 283; /* Starts empty */
-    transition: stroke-dashoffset 0.5s linear;
-}
-
-/* The percentage text in the center of the loader */
-.loader-percentage {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
-/* The final download button */
-.download-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    background-color: var(--heading-color); /* Black background */
-    color: #ffffff; /* White text */
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.download-button:hover {
-    background-color: #333333; /* Dark grey on hover */
-}
-
-/* Hide download button by default */
-#report-final-state .download-button {
-    display: none;
-}
-
-/* When report is completed, show it with fade-in */
-#report-final-state.show-download .download-button {
-    display: inline-flex;
-    animation: fadeIn 0.4s ease forwards;
-}
-
-/* Simple fade-in animation */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-
-
-/* =========================================================
-   💜 7. misc CARD
-========================================================= */
-.misc-card {
-    background: var(--primary-purple);
-    color: #ffffff;
-    justify-content: space-between;
-}
-
-.sheets-stat span {
-    font-size: 4rem;
-    font-weight: 700;
-    line-height: 1;
-}
-
-.sheets-stat p {
-    font-size: 1rem;
-    font-weight: 500;
-}
-
-.today-update {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 99px;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    align-self: flex-start;
-}
-
-.contributors {
-    font-weight: 500;
-}
-
-.avatar-stack {
-    display: flex;
-    margin-top: 0.5rem;
-}
-
-.avatar-chip {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 2px solid var(--primary-purple);
-    margin-left: -10px;
-}
-
-.avatar-chip:first-child {
-    margin-left: 0;
-}
-
-.join-link {
-    color: #ffffff;
-    text-decoration: none;
-    font-weight: 600;
-    align-self: flex-end;
-}
-
-/* =========================================================
-   📱 RESPONSIVENESS
-========================================================= */
-@media (max-width: 1200px) {
-    .merged-first-row {
-        grid-template-columns: 1fr;
-    }
-    .dashboard-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .dashboard-container {
-        padding: 1rem;
-    }
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-    .nav-links,
-    .nav-separator {
-        display: none;
-    }
-    .navbar {
-        padding-bottom: 1rem;
-    }
-}
-/* =========================================================
-   ✅ END OF CSS FILE
-========================================================= */
