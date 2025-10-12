@@ -1,4 +1,4 @@
-import { fetchUserFiles } from "./api.js";
+import { fetchUserFiles, processPDF } from "./api.js";
 
 // Get JWT token
 const token = localStorage.getItem('jwtToken');
@@ -167,7 +167,32 @@ confirmUpload.addEventListener('click', async () => {
     return;
   }
 
-  // Example upload placeholder logic
-  alert(`Uploaded: ${file.name}`);
-  uploadModal.style.display = 'none';
+  confirmUpload.disabled = true;
+  confirmUpload.textContent = 'Processing...';
+
+  try {
+    const result = await processPDF(file, token);
+
+    console.log('Server Response:', result);
+
+    if (result.error) {
+      alert('Failed to process PDF: ' + result.error);
+    } else {
+      alert('PDF processed successfully!');
+      // If the server returns chart data, update UI dynamically:
+      if (result.json_charts) {
+        renderCharts(result.json_charts);
+      }
+      // Optionally refresh user files list
+      await renderUserFiles();
+    }
+  } catch (err) {
+    alert('Error uploading PDF: ' + err.message);
+  } finally {
+    confirmUpload.disabled = false;
+    confirmUpload.textContent = 'Confirm';
+    uploadModal.style.display = 'none';
+    pdfFile.value = ''; // Reset input
+  }
 });
+
