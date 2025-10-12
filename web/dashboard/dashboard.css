@@ -1,4 +1,6 @@
-/* Reset & base */
+/* =========================
+   RESET & BASE STYLES
+========================= */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -12,9 +14,12 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
-/* Header */
+/* =========================
+   HEADER
+========================= */
 .app-header {
   position: fixed;
   top: 0;
@@ -64,17 +69,20 @@ body {
   background: #444;
 }
 
-/* Main Layout */
+/* =========================
+   MAIN LAYOUT
+========================= */
 .main-layout {
   display: flex;
   flex: 1;
-  margin-top: 70px; /* Offset header */
+  margin-top: 70px;
   height: calc(100vh - 70px);
   padding: 20px;
   gap: 20px;
+  overflow: hidden;
 }
 
-/* Left Panel */
+/* LEFT PANEL */
 .left-panel {
   flex: 1;
   background: #fff;
@@ -101,35 +109,18 @@ body {
   color: #333;
 }
 
-/* Right Panel */
+/* RIGHT PANEL */
 .right-panel {
   flex: 2;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  overflow: hidden;
 }
 
-/* Chart sections */
-.chart-section {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  flex: 1;
-}
-
-.chart-section h3 {
-  margin-bottom: 10px;
-  font-size: 1rem;
-  color: #222;
-}
-
-.chart-section p {
-  color: #555;
-}
-
-/* Left panel header row */
+/* =========================
+   FILE LIST STYLING
+========================= */
 .list-header {
   display: flex;
   justify-content: space-between;
@@ -142,7 +133,6 @@ body {
   color: #222;
 }
 
-/* Add (+) Button */
 .add-btn {
   background: #111;
   color: #fff;
@@ -160,11 +150,26 @@ body {
   background: #444;
 }
 
+#fileList li {
+  padding: 10px 15px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  background-color: #f5f5f5;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+#fileList li:hover {
+  background-color: #e0e0e0;
+  transform: translateX(5px);
+  font-weight: bold;
+}
+
 /* =========================
    MODAL STYLING
 ========================= */
 .modal {
-  display: none; /* Hidden by default */
+  display: none;
   position: fixed;
   z-index: 1000;
   left: 0;
@@ -210,7 +215,6 @@ body {
   background-color: #333;
 }
 
-/* Close button */
 .close-btn {
   position: absolute;
   right: 12px;
@@ -225,48 +229,49 @@ body {
   color: #666;
 }
 
-/* Style the file list items */
-#fileList li {
-  padding: 10px 15px;
-  margin-bottom: 5px;
-  border-radius: 5px;
-  background-color: #f5f5f5; /* light gray background */
-  cursor: pointer; /* shows pointer on hover */
-  transition: all 0.2s ease-in-out; /* smooth hover effect */
-}
-
-/* Hover effect */
-#fileList li:hover {
-  background-color: #e0e0e0; /* slightly darker gray */
-  transform: translateX(5px); /* subtle shift to right */
-  font-weight: bold; /* make text bolder */
-}
-
-/* Layout for top chart split horizontally */
-.top-chart {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: stretch;
-  height: 240px;
+/* =========================
+   CHART SECTIONS
+========================= */
+.chart-section {
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  flex: 1;
+  display: flex;
+  flex-direction: row; /* split left/right */
+  justify-content: space-between;
   overflow: hidden;
+  min-height: 250px;
 }
 
-/* Left side: Chart container */
+.chart-section h3,
+.chart-section h4 {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #222;
+}
+
+/* =========================
+   CHART LEFT / RIGHT PANELS
+========================= */
 .chart-left {
-  flex: 3;
+  flex: 1.5;
   padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .chart-left canvas {
-  width: 100% !important;
-  height: 200px !important;
+  max-width: 100%;
+  max-height: 280px;
+  width: auto !important;
+  height: auto !important;
 }
 
-/* Right side: Summary / stats */
 .chart-right {
   flex: 1;
   background: #f8f9fa;
@@ -277,4 +282,47 @@ body {
   justify-content: center;
   text-align: left;
   font-size: 14px;
+}
+
+/* =========================
+   CHART CONTROLS & PAGINATION
+========================= */
+.chart-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.chart-controls button {
+  background: #5874C6;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.chart-controls button:hover {
+  background: #3d5bbd;
+}
+
+.pagination {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.bullet {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: #bbb;
+  border-radius: 50%;
+  margin: 0 4px;
+}
+
+.bullet.active {
+  background: #5874C6;
 }

@@ -49,10 +49,32 @@
         </div>
       </div>
 
+      
+      <!-- Bottom Chart Section -->
       <div class="chart-section bottom-chart">
-        <!-- <h3>Bottom Chart</h3> -->
-        <p>Chart content placeholder</p>
+        <div class="chart-left">
+          <!-- Pie chart canvas -->
+          <canvas id="pieChart"></canvas>
+
+          <!-- Navigation buttons -->
+          <div class="chart-controls">
+            <button id="prevChart">◀ Prev</button>
+            <button id="nextChart">Next ▶</button>
+          </div>
+
+          <!-- Pagination bullets -->
+          <div id="paginationBullets" class="pagination"></div>
+        </div>
+
+        <div class="chart-right">
+          <h4>Department Details</h4>
+          <p id="deptName">Department: -</p>
+          <p id="passCount">Pass: -</p>
+          <p id="failCount">Fail: -</p>
+          <p id="passPercentage">Pass %: -</p>
+        </div>
       </div>
+
     </section>
   </main>
 
