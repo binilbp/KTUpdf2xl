@@ -37,3 +37,35 @@ java -version
 ```
 you should see an output which includes the version number  
 </details>
+
+#  PostgreSQL Docker Container Setup Guide
+
+This guide provides step-by-step instructions to create and manage a PostgreSQL container using Docker, suitable for development and testing environments.
+
+##  Prerequisites
+
+- [Docker](https://www.docker.com/get-started)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+- A terminal or command prompt
+
+##  Quick Start: Run PostgreSQL with Docker
+
+1. Pull the PostgreSQL Docker image:
+
+```bash
+docker pull postgres
+```
+## Run a PostgreSQL container
+
+```bash
+docker run --name my_postgres -e POSTGRES_PASSWORD=mysecretpassword -d -p 5432:5432 postgres
+```
+## Verify the running container
+```bash
+docker ps
+```
+## Access the PostgreSQL container:
+```bash
+docker exec -it my_postgres psql -U postgres
+```
+
