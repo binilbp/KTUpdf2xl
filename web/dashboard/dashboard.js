@@ -11,7 +11,7 @@ const usernameEl = document.getElementById('username');
 const avatarEl = document.getElementById('userAvatar');
 
 function renderCharts(chartsData) {
-    const topChartEl = document.querySelector('.top-chart p');
+    const topChartEl = document.querySelector('.chart-left');
     const bottomChartEl = document.querySelector('.bottom-chart p');
 
     // Clear previous content

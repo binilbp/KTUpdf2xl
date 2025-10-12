@@ -241,3 +241,40 @@ body {
   transform: translateX(5px); /* subtle shift to right */
   font-weight: bold; /* make text bolder */
 }
+
+/* Layout for top chart split horizontally */
+.top-chart {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  height: 240px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* Left side: Chart container */
+.chart-left {
+  flex: 3;
+  padding: 10px;
+}
+
+.chart-left canvas {
+  width: 100% !important;
+  height: 200px !important;
+}
+
+/* Right side: Summary / stats */
+.chart-right {
+  flex: 1;
+  background: #f8f9fa;
+  border-left: 1px solid #e0e0e0;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+  font-size: 14px;
+}
