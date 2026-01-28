@@ -1,0 +1,11 @@
+venv
+.venv
+*.pdf
+*.xlsx
+*.xls
+*.xlsx#
+*.nix
+*.lock
+__pycache__
+.env
+gem/

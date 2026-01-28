@@ -1,0 +1,17 @@
+tabula-py[jpype]
+polars
+xlsxwriter
+pyarrow
+uvicorn[standard]
+fastapi
+python-multipart
+pdfplumber
+fastapi
+psycopg2-binary
+pydantic
+pydantic_core
+PyJWT
+python-decouple
+python-dotenv
+bcrypt
+SQLAlchemy

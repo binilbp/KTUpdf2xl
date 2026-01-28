@@ -1,0 +1,66 @@
+{
+  "summary": {
+    "totalStudents": 56,
+    "passedStudents": 20,
+    "failedStudents": 36,
+    "passPercentage": 35.71
+  },
+  "courses": [
+    {
+      "code": "GYMAT201",
+      "pass": 43,
+      "fail": 13,
+      "passPercentage": 76.79,
+      "grades": { "S": 2, "A+": 5, "A": 3, "B+": 2, "B": 5, "C+": 5, "C": 5, "D": 5, "F": 13, "P": 11 }
+    },
+    {
+      "code": "GCCYT122",
+      "pass": 29,
+      "fail": 27,
+      "passPercentage": 51.79,
+      "grades": { "S": 0, "A+": 0, "A": 1, "B+": 3, "B": 4, "C+": 3, "C": 6, "D": 6, "F": 27, "P": 6 }
+    },
+    {
+      "code": "GCEST203",
+      "pass": 29,
+      "fail": 27,
+      "passPercentage": 51.79,
+      "grades": { "S": 1, "A+": 2, "A": 1, "B+": 6, "B": 0, "C+": 4, "C": 5, "D": 7, "F": 27, "P": 3 }
+    },
+    {
+      "code": "GZEST204",
+      "pass": 26,
+      "fail": 30,
+      "passPercentage": 46.43,
+      "grades": { "S": 0, "A+": 0, "A": 0, "B+": 1, "B": 5, "C+": 4, "C": 3, "D": 10, "F": 29, "P": 3 }
+    },
+    {
+      "code": "PCCET205",
+      "pass": 23,
+      "fail": 33,
+      "passPercentage": 41.07,
+      "grades": { "S": 0, "A+": 0, "A": 1, "B+": 3, "B": 4, "C+": 3, "C": 3, "D": 6, "F": 33, "P": 3 }
+    },
+    {
+      "code": "UCEST206",
+      "pass": 54,
+      "fail": 2,
+      "passPercentage": 96.43,
+      "grades": { "S": 7, "A+": 11, "A": 10, "B+": 12, "B": 9, "C+": 3, "C": 2, "D": 0, "F": 2, "P": 0 }
+    },
+    {
+      "code": "GCESL218",
+      "pass": 56,
+      "fail": 0,
+      "passPercentage": 100.0,
+      "grades": { "S": 9, "A+": 9, "A": 6, "B+": 12, "B": 12, "C+": 1, "C": 2, "D": 5, "F": 0, "P": 0 }
+    },
+    {
+      "code": "UCHUT128",
+      "pass": 56,
+      "fail": 0,
+      "passPercentage": 100.0,
+      "grades": { "S": 0, "A+": 0, "A": 0, "B+": 0, "B": 0, "C+": 0, "C": 0, "D": 0, "F": 0, "P": 56 }
+    }
+  ]
+}
