@@ -8,6 +8,7 @@ import xlsxwriter
 import pdfplumber
 import json
 from pathlib import Path
+from fastapi import HTTPException
 
 progress_store = {}
 
@@ -275,7 +276,7 @@ def process_pdf(pdf_path, task_id=None):
     except Exception as e:
         update_progress(task_id, f"Error: {e}", -1)
         print(f"Error in processing: {e}")
-        return None, None
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Run everything with one function
 if __name__ == "__main__":
