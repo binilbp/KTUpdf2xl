@@ -58,7 +58,6 @@
                     </div>
                     <div class="overflow-hidden">
                         <p class="text-sm font-bold text-gray-800 truncate w-32">{selectedFile.name}</p>
-                        <p class="text-xs text-purple-600 font-medium">Ready to upload</p>
                     </div>
                 </div>
                 <button on:click={clearFile} class="text-gray-400 hover:text-red-500 transition-colors p-1">
@@ -68,9 +67,9 @@
             
             <button 
                 on:click={handleSubmit}
-                class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 transform active:scale-[0.98]"
+                class="w-full mt-6 bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3 text-lg transform active:scale-[0.98]"
             >
-                <Upload size={18} /> Analyze PDF
+                <Upload size={20} /> Analyze PDF
             </button>
         </div>
     {/if}

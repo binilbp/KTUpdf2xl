@@ -20,7 +20,11 @@
     // --- STATE ---
     let isLoggedIn = false;
     let isLoading = false;
-    let progress = { status: 'Idle', percent: 0, download_url: null };
+    let progress: { status: string; percent: number; download_url: string | null } = { 
+        status: 'Idle', 
+        percent: 0, 
+        download_url: null 
+    };
     let uploadTaskId = '';
     
     let historyFiles: any[] = [];
@@ -115,6 +119,26 @@
         historyFiles = [];
         closeDoors();
         setTimeout(() => { isLoggedIn = false; }, 500);
+    }
+
+    function handleLoadHistory(event: CustomEvent) {
+        const file = event.detail;
+        
+        // Load the stored JSON results into the dashboard using 'json_charts' from the API response
+        if (file.json_charts) {
+            dashboardData = typeof file.json_charts === 'string' ? JSON.parse(file.json_charts) : file.json_charts;
+            selectedBranchIndex = 0;
+        }
+
+        // Extract the user_id and generated file_name from the download_path
+        // e.g., "static/downloads/2/abc_output.xlsx" -> "2/abc_output.xlsx"
+        let downloadPathSuffix = '';
+        if (file.download_path) {
+            downloadPathSuffix = file.download_path.split('/').slice(-2).join('/');
+        }
+
+        // Dynamically update the download URL to point to the correct endpoint pattern
+        progress = { ...progress, download_url: `/download/${downloadPathSuffix}` };
     }
 
     // --- ANIMATION LOGIC ---
@@ -230,7 +254,7 @@
                 </div>
                 
                 <div class="span-1"> 
-                    <HistoryList files={historyFiles} apiBase={API_BASE} />
+                    <HistoryList files={historyFiles} on:loadHistory={handleLoadHistory} />
                 </div>
 
                 <div class="span-1"> 
