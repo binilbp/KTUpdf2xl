@@ -234,7 +234,7 @@ def process_pdf(pdf_path, task_id=None):
         start_time = time.time()
 
         unique_id = pdf_path.stem 
-        output_path = Path("uploads") / f"{unique_id}_output.xlsx" 
+        output_path = pdf_path.parent / f"{unique_id}_output.xlsx"
 
         # STEP 1
         update_progress(task_id, "Extracting PDF Title...", 10)

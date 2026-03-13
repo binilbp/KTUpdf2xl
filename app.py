@@ -140,15 +140,21 @@ def get_status(task_id: str):
     return progress_store.get(task_id, {"status": "Not Found", "percent": 0})
 
 # --- DOWNLOAD ENDPOINT (Updated for User Subdirectories) ---
+# --- DOWNLOAD ENDPOINT (Updated for User Subdirectories) ---
+# --- DOWNLOAD ENDPOINT (Updated for User Subdirectories) ---
 @app.get("/download/{user_id}/{file_name}")
 async def download_file(user_id: str, file_name: str):
-    # Security: Ensure we are looking inside the specific user's folder
+    # First, check the new user-specific folder
     file_path = UPLOAD_DIR / user_id / file_name
     
+    # Backward compatibility: If not found, check the root uploads folder for old history files
+    if not file_path.exists():
+        file_path = UPLOAD_DIR / file_name
+
     if file_path.exists():
         return FileResponse(
              path=file_path,
-             filename="processed_output.xlsx",
+             filename=file_name,
              media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
     else:

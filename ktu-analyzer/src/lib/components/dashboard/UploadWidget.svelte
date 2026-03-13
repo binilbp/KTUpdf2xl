@@ -67,9 +67,9 @@
             
             <button 
                 on:click={handleSubmit}
-                class="w-full mt-6 bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3 text-lg transform active:scale-[0.98]"
+                class="w-full mt-6 bg-purple-600 hover:bg-purple-700 text-white font-semibold h-11 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 text-base transform active:scale-[0.98]"
             >
-                <Upload size={20} /> Analyze PDF
+                <Upload size={24} /> Analyze PDF
             </button>
         </div>
     {/if}

@@ -124,21 +124,24 @@
     function handleLoadHistory(event: CustomEvent) {
         const file = event.detail;
         
-        // Load the stored JSON results into the dashboard using 'json_charts' from the API response
         if (file.json_charts) {
             dashboardData = typeof file.json_charts === 'string' ? JSON.parse(file.json_charts) : file.json_charts;
             selectedBranchIndex = 0;
         }
 
-        // Extract the user_id and generated file_name from the download_path
-        // e.g., "static/downloads/2/abc_output.xlsx" -> "2/abc_output.xlsx"
-        let downloadPathSuffix = '';
         if (file.download_path) {
-            downloadPathSuffix = file.download_path.split('/').slice(-2).join('/');
+            // Normalize slashes to catch Windows pathing bugs (\ vs /)
+            const normalizedPath = file.download_path.replace(/\\/g, '/');
+            const pathParts = normalizedPath.split('/');
+            
+            // Extract the user_id and generated file_name
+            const downloadPathSuffix = pathParts.slice(-2).join('/');
+            progress = { ...progress, download_url: `/download/${downloadPathSuffix}` };
+        } else {
+            // CRITICAL: Clear the URL if the DB record is missing the path, 
+            // otherwise it tries to download the previous file or a broken link.
+            progress = { ...progress, download_url: null };
         }
-
-        // Dynamically update the download URL to point to the correct endpoint pattern
-        progress = { ...progress, download_url: `/download/${downloadPathSuffix}` };
     }
 
     // --- ANIMATION LOGIC ---

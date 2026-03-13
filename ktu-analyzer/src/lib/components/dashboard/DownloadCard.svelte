@@ -10,7 +10,7 @@
         <FileSpreadsheet size={32} class="text-green-600" />
     </div>
 
-    <div class="mb-6">
+    <div class="mb-5">
         <h4 class="font-bold text-gray-800 text-xl mb-2">Detailed Report</h4>
         <p class="text-sm text-gray-500 max-w-50 mx-auto leading-relaxed">
             Download the complete analysis as an Excel file.
@@ -18,12 +18,12 @@
     </div>
     
     {#if downloadUrl}
-        <a href={`${apiBase}${downloadUrl}`} class="btn-dark flex items-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-1 transform transition-all">
-            <Download size={18} /> Download Excel
+        <a href={`${apiBase}${downloadUrl}`} download class="btn-dark flex items-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-1 transform transition-all">
+            <Download size={16} /> Download Excel
         </a>
     {:else}
         <button class="btn-dark flex items-center gap-2 opacity-50 cursor-not-allowed" disabled>
-            <Download size={18} /> Waiting for Analysis...
+            <Download size={16} /> Waiting for Analysis...
         </button>
     {/if}
 </div>
