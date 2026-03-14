@@ -77,11 +77,21 @@
     onMount(async () => {
         const token = localStorage.getItem('auth_token');
         if (token) {
-            isLoggedIn = true;
-            animationState = 'open';
-            document.body.style.overflow = 'auto'; 
-            await fetchHistory();
-            checkSession(); // NEW: Check session on initial load
+            // Verify the token by trying to fetch history first
+            const isTokenValid = await fetchHistory();
+            
+            if (isTokenValid) {
+                isLoggedIn = true;
+                animationState = 'open';
+                document.body.style.overflow = 'auto'; 
+                checkSession(); 
+            } else {
+                // Token is dead/invalid. Clean up and force them to log in.
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('login_timestamp');
+                document.body.style.overflow = 'hidden';
+                window.scrollTo(0, 0);
+            }
         } else {
             document.body.style.overflow = 'hidden';
             window.scrollTo(0, 0);
@@ -91,13 +101,24 @@
     // --- ACTIONS ---
     async function fetchHistory() {
         const token = localStorage.getItem('auth_token');
-        if (!token) return;
+        if (!token) return false;
         try {
             const res = await fetch(`${API_BASE}/userfiles/user/files`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            if (res.ok) historyFiles = await res.json();
-        } catch (e) { console.error(e); }
+            
+            if (res.ok) {
+                historyFiles = await res.json();
+                return true; // Token is valid!
+            } else {
+                // If we get a 401 Unauthorized (or any other error), token is invalid
+                console.warn("Token validation failed with status:", res.status);
+                return false; 
+            }
+        } catch (e) { 
+            console.error("Network error during token validation:", e);
+            return false;
+        }
     }
 
     async function handleUpload(event: CustomEvent) {
