@@ -20,6 +20,9 @@
     // --- STATE ---
     let isLoggedIn = false;
     let isLoading = false;
+    let isSessionExpired = false; 
+    let sessionTimeout: ReturnType<typeof setTimeout> | undefined; 
+    const SESSION_DURATION_MS = 15 * 60 * 1000;
     let progress: { status: string; percent: number; download_url: string | null } = { 
         status: 'Idle', 
         percent: 0, 
@@ -39,6 +42,37 @@
     let lastScrollY: number = 0;
     $: isLiftOpen = animationState === 'open' || animationState === 'opening';
 
+    // NEW: Function to check and enforce session expiration
+    function checkSession() {
+        const loginTimestampStr = localStorage.getItem('login_timestamp');
+        if (!loginTimestampStr) return;
+
+        const loginTime = parseInt(loginTimestampStr, 10);
+        const currentTime = Date.now();
+        const elapsedTime = currentTime - loginTime;
+
+        clearTimeout(sessionTimeout); // Clear any existing timer
+
+        if (elapsedTime >= SESSION_DURATION_MS) {
+            // Time already expired
+            triggerSessionExpiry();
+        } else {
+            // Set timer for the remaining time
+            const timeRemaining = SESSION_DURATION_MS - elapsedTime;
+            sessionTimeout = setTimeout(() => {
+                triggerSessionExpiry();
+            }, timeRemaining);
+        }
+    }
+
+    // NEW: Function to handle the actual expiration event
+    function triggerSessionExpiry() {
+        isSessionExpired = true;
+        // Clear tokens immediately so backend calls don't fire with an expired token
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('login_timestamp');
+    }
+
     // --- LIFECYCLE ---
     onMount(async () => {
         const token = localStorage.getItem('auth_token');
@@ -47,6 +81,7 @@
             animationState = 'open';
             document.body.style.overflow = 'auto'; 
             await fetchHistory();
+            checkSession(); // NEW: Check session on initial load
         } else {
             document.body.style.overflow = 'hidden';
             window.scrollTo(0, 0);
@@ -110,13 +145,30 @@
 
     function handleLoginSuccess() {
         isLoggedIn = true; 
-        openDoors();       
+        isSessionExpired = false; // NEW: reset expiration state
+        openDoors();
+        checkSession(); // NEW: Start the timer on fresh login
     }
 
     function handleLogout() {
         localStorage.removeItem('auth_token');
+        localStorage.removeItem('login_timestamp'); // NEW: Clear timestamp
+        clearTimeout(sessionTimeout);               // NEW: Clear the timer
         dashboardData = [];
         historyFiles = [];
+        closeDoors();
+        setTimeout(() => { isLoggedIn = false; isSessionExpired = false; }, 500);
+    }
+
+    function handleAcknowledgeExpiry() {
+        // Hide the popup
+        isSessionExpired = false; 
+        
+        // Clear UI data
+        dashboardData = [];
+        historyFiles = [];
+        
+        // Trigger the door animation to go back to the login screen
         closeDoors();
         setTimeout(() => { isLoggedIn = false; }, 500);
     }
@@ -196,7 +248,7 @@
     function handleScroll() {
         if (isLoggedIn) return;
         lastScrollY = scrollY;
-    }
+    } 
 </script>
 
 <svelte:window bind:scrollY on:wheel={handleWheel} on:scroll={handleScroll} />
@@ -295,6 +347,26 @@
 <button class="back-to-top" class:visible={isLiftOpen && !isLoggedIn && scrollY > 100} on:click={resetToHome}>
     <ArrowUp size={24} />
 </button>
+
+{#if isSessionExpired}
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-100 flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center flex flex-col items-center transform transition-transform scale-100">
+            
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Session Expired</h3>
+            
+            <p class="text-gray-500 mb-6 leading-relaxed">
+                Your session has expired. Please log in again to continue accessing your dashboard.
+            </p>
+            
+            <button 
+                on:click={handleAcknowledgeExpiry} 
+                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl transition-colors"
+            >
+                Log In Again
+            </button>
+        </div>
+    </div>
+{/if}
 
 <style>
     /* --- DASHBOARD RESPONSIVE LAYOUT --- */

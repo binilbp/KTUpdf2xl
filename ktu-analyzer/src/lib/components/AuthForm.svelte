@@ -56,6 +56,9 @@
                 if (data.token) {
                     console.log("Login Successful, Token received.");
                     localStorage.setItem('auth_token', data.token);
+                    // NEW: Store the timestamp of the login (in milliseconds)
+                    localStorage.setItem('login_timestamp', Date.now().toString());
+                    
                     dispatch('success'); // Triggers door animation
                 } else {
                     throw new Error("Invalid response from server.");
