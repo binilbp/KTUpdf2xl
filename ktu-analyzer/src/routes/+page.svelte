@@ -73,18 +73,59 @@
         localStorage.removeItem('login_timestamp');
     }
 
+    // NEW: Function specifically for validating the token
+    async function validateSession() {
+        const token = localStorage.getItem('auth_token');
+        if (!token) return false;
+        
+        try {
+            const res = await fetch(`${API_BASE}/protected`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            // If the backend returns 200 OK, the token is valid.
+            return res.ok; 
+        } catch (e) {
+            console.error("Network error during session validation:", e);
+            return false;
+        }
+    }
+
+    // UPDATED: fetchHistory now ONLY handles fetching data, not authentication logic
+    async function fetchHistory() {
+        const token = localStorage.getItem('auth_token');
+        if (!token) return;
+        
+        try {
+            const res = await fetch(`${API_BASE}/userfiles/user/files`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                historyFiles = await res.json();
+            } else {
+                console.warn("Failed to fetch history data:", res.status);
+            }
+        } catch (e) { 
+            console.error("Network error fetching history:", e);
+        }
+    }
+
     // --- LIFECYCLE ---
+    // UPDATED: onMount uses the new validation function
     onMount(async () => {
         const token = localStorage.getItem('auth_token');
         if (token) {
-            // Verify the token by trying to fetch history first
-            const isTokenValid = await fetchHistory();
+            // Verify the token using our dedicated auth endpoint
+            const isTokenValid = await validateSession();
             
             if (isTokenValid) {
                 isLoggedIn = true;
                 animationState = 'open';
                 document.body.style.overflow = 'auto'; 
                 checkSession(); 
+                
+                // Fetch data now that we know they are authenticated
+                fetchHistory(); 
             } else {
                 // Token is dead/invalid. Clean up and force them to log in.
                 localStorage.removeItem('auth_token');
@@ -92,34 +133,12 @@
                 document.body.style.overflow = 'hidden';
                 window.scrollTo(0, 0);
             }
-        } else {
+        } 
+        else {
             document.body.style.overflow = 'hidden';
             window.scrollTo(0, 0);
         }
     });
-
-    // --- ACTIONS ---
-    async function fetchHistory() {
-        const token = localStorage.getItem('auth_token');
-        if (!token) return false;
-        try {
-            const res = await fetch(`${API_BASE}/userfiles/user/files`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            
-            if (res.ok) {
-                historyFiles = await res.json();
-                return true; // Token is valid!
-            } else {
-                // If we get a 401 Unauthorized (or any other error), token is invalid
-                console.warn("Token validation failed with status:", res.status);
-                return false; 
-            }
-        } catch (e) { 
-            console.error("Network error during token validation:", e);
-            return false;
-        }
-    }
 
     async function handleUpload(event: CustomEvent) {
         const file = event.detail;
@@ -129,37 +148,80 @@
 
         isLoading = true;
         progress = { status: 'Starting Upload...', percent: 5, download_url: null };
-
         try {
             const res = await fetch(`${API_BASE}/process-pdf/start`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
             });
+
+            // NEW: Check for errors before parsing JSON
+            if (!res.ok) {
+                if (res.status === 401) {
+                    triggerSessionExpiry(); 
+                    return;
+                }
+                if (res.status === 404) {
+                    alert("Processing endpoint not found.");
+                    handleLogout();
+                    return;
+                }
+                throw new Error(`Server responded with status: ${res.status}`);
+            }
+
             const data = await res.json();
             uploadTaskId = data.task_id;
             pollStatus();
         } catch (error) {
-            console.error(error);
+            console.error("Upload Error:", error);
             isLoading = false;
+            progress = { status: 'Upload Failed', percent: 0, download_url: null };
         }
     }
 
     async function pollStatus() {
         if (!uploadTaskId) return;
         const interval = setInterval(async () => {
-            const res = await fetch(`${API_BASE}/process-pdf/status/${uploadTaskId}`);
-            const data = await res.json();
-            progress = data;
+            try {
+                // Notice we don't strictly need the token here if it's a public polling endpoint, 
+                // but if your backend secures this, you'd add the Authorization header.
+                const res = await fetch(`${API_BASE}/process-pdf/status/${uploadTaskId}`);
+                
+                // NEW: Validate polling response
+                if (!res.ok) {
+                    clearInterval(interval); // Stop polling immediately
+                    
+                    if (res.status === 401) {
+                        triggerSessionExpiry();
+                        return;
+                    }
+                    if (res.status === 404) {
+                        alert("Processing task lost or not found.");
+                        handleLogout();
+                        return;
+                    }
+                    throw new Error(`Polling failed with status: ${res.status}`);
+                }
 
-            if (data.percent >= 100) {
+                const data = await res.json();
+                progress = data;
+
+                // Stop polling if complete OR if the backend signals an error in the status string
+                if (data.percent >= 100 || data.status.toLowerCase().includes('error') || data.status.toLowerCase().includes('failed')) {
+                    clearInterval(interval);
+                    isLoading = false;
+                    
+                    if (data.result) {
+                        dashboardData = data.result;
+                        selectedBranchIndex = 0;
+                        await fetchHistory();
+                    }
+                }
+            } catch (error) {
+                console.error("Polling Error:", error);
                 clearInterval(interval);
                 isLoading = false;
-                if (data.result) {
-                    dashboardData = data.result;
-                    selectedBranchIndex = 0;
-                    await fetchHistory();
-                }
+                progress = { status: 'Polling Failed', percent: 0, download_url: null };
             }
         }, 1000);
     }
@@ -370,18 +432,19 @@
 </button>
 
 {#if isSessionExpired}
-    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-100 flex items-center justify-center p-4 transition-opacity">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center flex flex-col items-center transform transition-transform scale-100">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-100 flex items-center justify-center p-4 sm:p-6 transition-opacity">
+        
+        <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-xs sm:max-w-sm text-center flex flex-col items-center transform transition-all">
             
-            <h3 class="text-2xl font-bold text-gray-800 mb-2">Session Expired</h3>
+            <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-2">Session Expired</h3>
             
-            <p class="text-gray-500 mb-6 leading-relaxed">
+            <p class="text-sm md:text-base text-gray-500 mb-6 leading-relaxed">
                 Your session has expired. Please log in again to continue accessing your dashboard.
             </p>
             
             <button 
                 on:click={handleAcknowledgeExpiry} 
-                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl transition-colors"
+                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl transition-colors text-sm md:text-base"
             >
                 Log In Again
             </button>
