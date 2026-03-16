@@ -38,7 +38,7 @@ app.include_router(user_file_router)
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
-# app.mount("/static", StaticFiles(directory="web", html=True), name="static")
+app.mount("/admin", StaticFiles(directory="admin", html=True), name="admin")
 
 @app.get("/protected")
 def read_protected(user : UserOutput = Depends(get_current_user)):
