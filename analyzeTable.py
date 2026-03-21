@@ -58,8 +58,7 @@ def analyze_courses(table, courses):
     return courses_analysis
 
 
-def analyze_table(table, type: str):
-    course_code_regex = (r"^[A-Z]{3}\d{3}$")
+def analyze_table(table, course_code_regex, type: str):
     #getting only the courses from the table column names
     courses = [column for column in table.columns if re.fullmatch(course_code_regex, column)]
     courses_analysis=analyze_courses(table, courses)

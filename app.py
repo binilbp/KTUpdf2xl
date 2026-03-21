@@ -58,9 +58,19 @@ def background_task_wrapper(file_path: Path, task_id: str, user_id: int, origina
     Runs the heavy PDF processing and saves the result to DB.
     Since this runs in background, we need a fresh DB session.
     """
+    
+    #todo: make the data based on config rather than hardcode
+    pdf_details = {
+        "uni_name" : "APJ ABDUL KALAM TECHNOLOGICAL UNIVERSITY",
+        "split_keyword" : "Generated",
+        "course_code_regex": (r"^[A-Z]{3}\d{3}$"),
+        "course_code_name_regex": r'^([A-Z]{3}\d{3})\s*-\s*(.+)$',
+        "student_id_regex": r"([A-Z]+)(\d{2})([A-Z]+)(\d+)"
+    }
+
     try:
         # Run the heavy processing
-        output_file, charts_json = process_pdf(file_path, task_id=task_id)
+        output_file, charts_json = process_pdf(file_path, pdf_details=pdf_details, task_id=task_id)
 
         if output_file and output_file.exists():
             # Create a new DB session manually
@@ -139,9 +149,7 @@ def get_status(task_id: str):
     # Return status or default error if not found
     return progress_store.get(task_id, {"status": "Not Found", "percent": 0})
 
-# --- DOWNLOAD ENDPOINT (Updated for User Subdirectories) ---
-# --- DOWNLOAD ENDPOINT (Updated for User Subdirectories) ---
-# --- DOWNLOAD ENDPOINT (Updated for User Subdirectories) ---
+
 @app.get("/download/{user_id}/{file_name}")
 async def download_file(user_id: str, file_name: str):
     # First, check the new user-specific folder
