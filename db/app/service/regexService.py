@@ -18,6 +18,21 @@ class RegexService:
     def __init__(self, session: Session):
         self.session = session
 
+    def get_all_schemes(self):
+        schemes = self.session.query(Scheme).all()
+        if not schemes:
+            raise HTTPException(
+                status_code=404,
+                detail="No Schemes Found"
+            )
+        return [
+            {
+                "id": scheme.id,
+                "name": scheme.name
+            }
+            for scheme in schemes
+        ]
+
     def get_scheme_by_name(self, scheme_name: str) -> Scheme:
         scheme = (
             self.session.query(Scheme)

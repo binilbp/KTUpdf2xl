@@ -53,6 +53,9 @@ def cleanup_files(*paths: Path):
         except Exception as e:
             print(f"[CLEANUP ERROR] {e}")
 
+
+
+
 # --- BACKGROUND TASK WRAPPER ---
 def background_task_wrapper(file_path: Path, task_id: str, user_id: int, original_filename: str, scheme_name: str):
     """
@@ -114,6 +117,12 @@ def background_task_wrapper(file_path: Path, task_id: str, user_id: int, origina
 
     except Exception as e:
         print(f"Critical Error in background task: {e}")
+
+
+@app.get("/get_schemes") #request here for geting list of schemes
+def get_schemes(db: Session = Depends(get_db)):
+    regex = RegexService(session=db)
+    return regex.get_all_schemes()
 
 # --- START PROCESSING (Async) ---
 @app.post("/process-pdf/start")
@@ -178,3 +187,5 @@ async def download_file(user_id: str, file_name: str):
         )
     else:
         raise HTTPException(status_code=404, detail="File not found")
+    
+
