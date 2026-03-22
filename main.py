@@ -231,8 +231,8 @@ def create_table_partitions(table, course_code_regex, course_code_name_regex, st
 def process_pdf ( pdf_path, pdf_details ,task_id=None):
     try:
         #extract the pdf_details for processing
-        uni_name = pdf_details['uni_name']
-        split_keyword = pdf_details['split_keyword']
+        uni_name = pdf_details['main_title_marker']
+        split_keyword = pdf_details['department_split_marker']
         course_code_regex = pdf_details['course_code_regex']
         course_code_name_regex = pdf_details['course_code_name_regex']
         student_id_regex = pdf_details['student_id_regex']

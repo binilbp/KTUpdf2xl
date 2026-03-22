@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from db.app.core.database import get_db, SessionLocal # Import SessionLocal for background tasks
 from db.app.db.schema.user import UserOutput
 from db.app.db.schema.user_file import UserFileCreate
+from db.app.service.regexService import RegexService
 from db.app.service.userService import UserService
 from db.app.util.init_db import create_tables
 from db.app.routers.auth import authrouter
@@ -53,28 +54,36 @@ def cleanup_files(*paths: Path):
             print(f"[CLEANUP ERROR] {e}")
 
 # --- BACKGROUND TASK WRAPPER ---
-def background_task_wrapper(file_path: Path, task_id: str, user_id: int, original_filename: str):
+def background_task_wrapper(file_path: Path, task_id: str, user_id: int, original_filename: str, scheme_name: str):
     """
     Runs the heavy PDF processing and saves the result to DB.
     Since this runs in background, we need a fresh DB session.
     """
     
+    
+
     #todo: make the data based on config rather than hardcode
-    pdf_details = {
-        "uni_name" : "APJ ABDUL KALAM TECHNOLOGICAL UNIVERSITY",
-        "split_keyword" : "Generated",
-        "course_code_regex": (r"^[A-Z]{3}\d{3}$"),
-        "course_code_name_regex": r'^([A-Z]{3}\d{3})\s*-\s*(.+)$',
-        "student_id_regex": r"([A-Z]+)(\d{2})([A-Z]+)(\d+)"
-    }
+    # pdf_details = {
+    #     "uni_name" : "APJ ABDUL KALAM TECHNOLOGICAL UNIVERSITY",
+    #     "split_keyword" : "Generated",
+    #     "course_code_regex": (r"^[A-Z]{3}\d{3}$"),
+    #     "course_code_name_regex": r'^([A-Z]{3}\d{3})\s*-\s*(.+)$',
+    #     "student_id_regex": r"([A-Z]+)(\d{2})([A-Z]+)(\d+)"
+    # }
+
+    # Create a new DB session manually, ps:orennam mathi ini indakya manda adich pottikkum
+    db = SessionLocal()
 
     try:
+
+        regex_service = RegexService(session=db)
+        pdf_details = regex_service.get_patterns_by_scheme(scheme_name) # change to dynamic
+
         # Run the heavy processing
         output_file, charts_json = process_pdf(file_path, pdf_details=pdf_details, task_id=task_id)
 
         if output_file and output_file.exists():
-            # Create a new DB session manually
-            db = SessionLocal()
+            
             try:
                 # Construct path compatible with the download endpoint
                 # Format: uploads/{user_id}/{filename}
@@ -111,6 +120,7 @@ def background_task_wrapper(file_path: Path, task_id: str, user_id: int, origina
 async def start_processing(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...), 
+    scheme_name: str = None,
     db : Session = Depends(get_db),
     user: UserOutput = Depends(get_current_user)
     ):
@@ -137,7 +147,8 @@ async def start_processing(
         file_path, 
         task_id, 
         user.id, 
-        file.filename
+        file.filename,
+        scheme_name
     )
 
     # 5. Return Task ID immediately
