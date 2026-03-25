@@ -20,6 +20,10 @@
     // --- STATE ---
     let isLoggedIn = false;
     let isLoading = false;
+
+    let toast = { visible: false, message: '' };
+    let toastTimeout: ReturnType<typeof setTimeout>;
+
     let isSessionExpired = false; 
     let sessionTimeout: ReturnType<typeof setTimeout> | undefined; 
     const SESSION_DURATION_MS = 15 * 60 * 1000;
@@ -32,6 +36,7 @@
     
     let historyFiles: any[] = [];
     let dashboardData: any[] = [];
+    let availableSchemas: string[] = []
     let selectedBranchIndex = 0; 
 
     $: currentBranch = dashboardData[selectedBranchIndex] || null;
@@ -91,6 +96,17 @@
         }
     }
 
+    async function fetchSchemas() {
+        try {
+            const res = await fetch(`${API_BASE}/get_schemes`);
+            if (res.ok) {
+                availableSchemas = await res.json();
+            }
+        } catch (e) {
+            console.error("Failed to fetch schemas:", e);
+        }
+    }
+
     // UPDATED: fetchHistory now ONLY handles fetching data, not authentication logic
     async function fetchHistory() {
         const token = localStorage.getItem('auth_token');
@@ -125,7 +141,8 @@
                 checkSession(); 
                 
                 // Fetch data now that we know they are authenticated
-                fetchHistory(); 
+                fetchHistory();
+                fetchSchemas(); 
             } else {
                 // Token is dead/invalid. Clean up and force them to log in.
                 localStorage.removeItem('auth_token');
@@ -141,7 +158,7 @@
     });
 
     async function handleUpload(event: CustomEvent) {
-        const file = event.detail;
+        const { file, schema } = event.detail;
         const token = localStorage.getItem('auth_token');
         const formData = new FormData();
         formData.append('file', file);
@@ -149,7 +166,7 @@
         isLoading = true;
         progress = { status: 'Starting Upload...', percent: 5, download_url: null };
         try {
-            const res = await fetch(`${API_BASE}/process-pdf/start`, {
+            const res = await fetch(`${API_BASE}/process-pdf/start?scheme_name=${encodeURIComponent(schema)}`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
@@ -243,6 +260,18 @@
         setTimeout(() => { isLoggedIn = false; isSessionExpired = false; }, 500);
     }
 
+    function handleDownloadToast() {
+        toast = { visible: true, message: 'Download started successfully!' };
+        
+        // Clear any existing timeout so it doesn't disappear too early if clicked twice
+        clearTimeout(toastTimeout); 
+        
+        // Hide the toast after 3 seconds
+        toastTimeout = setTimeout(() => {
+            toast.visible = false;
+        }, 3000);
+    }
+
     function handleAcknowledgeExpiry() {
         // Hide the popup
         isSessionExpired = false; 
@@ -285,7 +314,9 @@
         window.scrollTo(0, 0);
         document.body.style.overflow = 'hidden'; 
         animationState = 'opening';
-        if (isLoggedIn) fetchHistory();
+        if (isLoggedIn){ 
+            fetchHistory();
+            fetchSchemas(); }
         setTimeout(() => { 
             animationState = 'open'; 
             document.body.style.overflow = 'auto'; 
@@ -342,11 +373,12 @@
 
 {#if isLoggedIn}
     <nav class="fixed top-0 left-0 w-full bg-white shadow-sm z-50 px-4 md:px-8 h-16 flex items-center justify-between transition-all duration-500">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 pl-4 md:pl-6">
             <span class="font-bold text-lg md:text-xl text-gray-800 tracking-tight">KTU ANALYZER</span>
             <span class="bg-purple-100 text-purple-700 text-[10px] md:text-xs px-2 py-1 rounded-full font-semibold">BETA</span>
         </div>
-        <button on:click={handleLogout} class="flex items-center gap-2 text-sm text-gray-600 hover:text-red-600 font-medium transition-colors">
+        
+        <button on:click={handleLogout} class="flex items-center gap-2 text-sm text-gray-600 hover:text-red-600 font-medium transition-colors pr-4 md:pr-6">
             <LogOut size={16} /> <span class="hidden md:inline">Sign Out</span>
         </button>
     </nav>
@@ -400,11 +432,11 @@
                 </div>
 
                 <div class="span-1"> 
-                    <UploadWidget {isLoading} {progress} on:upload={handleUpload} />
+                    <UploadWidget {isLoading} {progress} schemas={availableSchemas} on:upload={handleUpload} />
                 </div>
                 
                 <div class="span-1"> 
-                    <DownloadCard downloadUrl={progress.download_url} apiBase={API_BASE} />
+                    <DownloadCard downloadUrl={progress.download_url} apiBase={API_BASE} on:download={handleDownloadToast} />
                 </div>
 
             </div>
@@ -434,21 +466,34 @@
 {#if isSessionExpired}
     <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-100 flex items-center justify-center p-4 sm:p-6 transition-opacity">
         
-        <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-xs sm:max-w-sm text-center flex flex-col items-center transform transition-all">
-            
-            <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-2">Session Expired</h3>
-            
-            <p class="text-sm md:text-base text-gray-500 mb-6 leading-relaxed">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-xs sm:max-w-sm text-center flex flex-col gap-4">
+
+            <h3 class="text-xl md:text-2xl font-bold text-gray-800">
+                Session Expired
+            </h3>
+
+            <p class="text-sm md:text-base text-gray-500 leading-relaxed">
                 Your session has expired. Please log in again to continue accessing your dashboard.
             </p>
-            
+
             <button 
                 on:click={handleAcknowledgeExpiry} 
-                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl transition-colors text-sm md:text-base"
+                class="block w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl transition-colors text-sm md:text-base"
             >
                 Log In Again
             </button>
+
         </div>
+
+    </div>
+{/if}
+
+{#if toast.visible}
+    <div class="toast-notification">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>{toast.message}</span>
     </div>
 {/if}
 
@@ -531,5 +576,27 @@
         .right-door { width: 100vw; flex: none; } 
         /* Mobile: Right door moves completely out */
         .right-door.open { transform: translateX(100%); }
+    }
+    .toast-notification {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        background: #1f2937; /* Dark Gray */
+        color: white;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        z-index: 1000;
+        animation: slideUp 0.3s ease-out forwards;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
     }
 </style>

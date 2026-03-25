@@ -4,9 +4,11 @@
 
     export let isLoading = false;
     export let progress = { status: '', percent: 0 };
+    export let schemas: string[] = [];
 
     const dispatch = createEventDispatcher();
     let selectedFile: File | null = null;
+    let selectedSchema: string = '';
 
     function handleFile(e: Event) {
         const target = e.target as HTMLInputElement;
@@ -18,12 +20,18 @@
 
     function handleSubmit() {
         if (selectedFile) {
-            dispatch('upload', selectedFile);
+            if (!selectedSchema) {
+                alert("Please select a schema before analyzing.");
+                return;
+            }
+            // UPDATED: Dispatch an object containing both
+            dispatch('upload', { file: selectedFile, schema: selectedSchema });
         }
     }
 
     function clearFile() {
         selectedFile = null;
+        selectedSchema = '';
     }
 </script>
 
@@ -40,7 +48,25 @@
         </div>
     {/if}
 
-    <h3 class="font-bold text-gray-800 mb-1">Upload Result</h3>
+    <div class="flex items-center justify-between mb-2">
+        <h3 class="font-bold text-gray-800">Upload Result</h3>
+        
+        <select 
+            id="schema-select" 
+            bind:value={selectedSchema} 
+            class="w-36 text-xs py-1.5 pl-3 pr-8 border border-gray-200 rounded-md bg-white cursor-pointer focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400 text-gray-600 truncate shadow-sm"
+        >
+            <option value="" disabled selected>Select Schema</option>
+            
+            {#if schemas.length === 0}
+                <option value="" disabled>Loading...</option>
+            {:else}
+                {#each schemas as schema}
+                    <option value={schema}>{schema}</option>
+                {/each}
+            {/if}
+        </select>
+    </div>
     
     {#if !selectedFile}
         <p class="text-xs text-gray-500 mb-6">Drag & drop PDF to analyze</p>
@@ -51,9 +77,10 @@
         </label>
     {:else}
         <div class="flex flex-col h-full justify-between pt-2">
-            <div class="flex items-start justify-between bg-purple-50 p-3 rounded-xl border border-purple-100">
+            
+            <div class="flex items-center justify-between bg-transparent p-3 rounded-xl border border-gray-200">
                 <div class="flex items-center gap-3 overflow-hidden">
-                    <div class="bg-white shadow-sm p-2 rounded-lg border border-purple-100">
+                    <div class="bg-white shadow-sm p-2 rounded-lg border border-gray-100">
                         <FileText size={20} class="text-purple-600" />
                     </div>
                     <div class="overflow-hidden">
@@ -67,7 +94,7 @@
             
             <button 
                 on:click={handleSubmit}
-                class="w-full mt-6 bg-purple-600 hover:bg-purple-700 text-white font-semibold h-11 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 text-base transform active:scale-[0.98]"
+                class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold h-11 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 text-base transform active:scale-[0.98]"
             >
                 <Upload size={24} /> Analyze PDF
             </button>

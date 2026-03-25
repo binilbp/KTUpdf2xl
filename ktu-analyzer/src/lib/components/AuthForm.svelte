@@ -156,7 +156,7 @@
         </p>
 
     {:else}
-        <h2 class="welcome-title">Create Account 🚀</h2>
+        <h2 class="welcome-title">Create Account</h2>
         <p class="welcome-subtitle">Start analyzing your results today</p>
 
         <form on:submit|preventDefault={handleSubmit}>
@@ -181,14 +181,18 @@
             >
 
             <label class="input-label" for="designation">DESIGNATION</label>
-            <input 
-                type="text" 
+            <select 
                 id="designation" 
                 bind:value={designation} 
-                placeholder="e.g. Student, Faculty"
-                class="input-field" 
+                class="input-field bg-white cursor-pointer" 
                 required
-            >
+            >   
+                <option value="" disabled selected>Select your role</option>
+                <option value="Student">Student</option>
+                <option value="Faculty">Faculty</option>
+                <option value="Staff">Staff</option>
+                <option value="Other">Other</option>
+            </select>
 
             <label class="input-label" for="signup-email">EMAIL</label>
             <input 
