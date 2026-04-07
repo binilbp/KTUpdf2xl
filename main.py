@@ -235,7 +235,7 @@ def process_pdf ( pdf_path, pdf_details ,task_id=None):
         split_keyword = pdf_details['department_split_marker']
         course_code_regex = pdf_details['course_code_regex']
         course_code_name_regex = pdf_details['course_code_name_regex']
-        student_id_regex = pdf_details['student_id_regex']
+        student_id_regex = pdf_details['student_id_pattern']
 
 
         start_time = time.time()

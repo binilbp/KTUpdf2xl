@@ -100,7 +100,10 @@
         try {
             const res = await fetch(`${API_BASE}/get_schemes`);
             if (res.ok) {
-                availableSchemas = await res.json();
+
+                const data = await res.json();
+
+                availableSchemas = data.map((item: any) => item.name);
             }
         } catch (e) {
             console.error("Failed to fetch schemas:", e);
