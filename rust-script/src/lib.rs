@@ -1,66 +1,52 @@
-use pdfplumber::{Pdf, TextOptions};
-use std::path::Path;
+pub mod excel;
+pub mod parse;
 
-// pub struct PdfSettings {
-//
-// }
+use std::path::{Path, PathBuf};
 
+#[derive(Debug, Default)]
 enum ResultType {
-    RegularOnly,
-    SupplyOnly,
-    RegularAndSupply,
+    #[default]
+    Regular,
+    Supply,
+    SupplyRegular,
 }
 
+#[derive(Default, Debug)]
 struct DepartmentData {
     department_name: String,
     course_names: Vec<String>,
     result: ResultType,
 }
 
-struct PdfData {
+//same as PdfDataBuilder but without Options enum only to build after collecting all required data through parsing
+pub struct PdfData {
     exam_centre: String,
     departments: Vec<DepartmentData>,
-    pdf_path: Path,
+    pdf_path: PathBuf,
 }
 
-// pub fn convert_pdf(pdf_path: impl AsRef<Path>, pdf_settings: PdfSettings) -> String {
-pub fn convert_pdf(pdf_path: impl AsRef<Path>) -> String {
-    //simple graffiti ;D
-    println!(" --------------------- ");
-    println!(" ---- ktu_pdf2xl ----- ");
-    println!(" --------------------- ");
-    println!("INFO: starting conversion");
-    let pdf = Pdf::open_file(pdf_path, None).unwrap();
-    let pdf_text = extract_raw_text(pdf);
+//struct model with Option use this during parsing, finally use .build() method to create PdfData object with complete data
+#[derive(Default, Debug)]
+pub struct PdfDataBuilder {
+    exam_centre: Option<String>,
+    departments: Option<Vec<DepartmentData>>,
+    pdf_path: Option<PathBuf>,
+}
 
-    if let Some(pdf_text) = pdf_text {
-        pdf_text
-    } else {
-        panic!("ERROR: extracted pdf text empty");
+impl PdfDataBuilder {
+    pub fn set_pdf_path(&mut self, file_path: &Path) {
+        self.pdf_path = Some(file_path.to_path_buf());
     }
+
+    pub fn pdf_path(&self) -> &Path {
+        // personNote: remember .as_deref convert PathBuf -> &PathBuf -> &Path and .unwrap to unwrap Option
+        self.pdf_path.as_deref().expect("No path set")
+    }
+
+    pub fn set_exam_center(&mut self, data: &str) {
+        self.exam_centre = Some(String::from(data));
+    }
+
 }
 
 
-// extract the full raw text from every page of pdf
-fn extract_raw_text(pdf: Pdf) -> Option<String> {
-    let mut page_number: usize = 0;
-    let mut extracted_text = String::new();
-
-    for result in pdf.pages_iter() {
-        let page = result.unwrap();
-        page_number = page.page_number();
-
-        let text = page.extract_text(&TextOptions::default());
-        // let text = page.extract_text(&TextOptions {layout: true, ..Default::default() });
-
-        extracted_text.push_str(&text);
-    }
-
-    if extracted_text.is_empty() {
-        println!("WARN: extracted text empty");
-        None
-    } else {
-        println!("INFO: extracted text from {page_number} pages");
-        Some(extracted_text)
-    }
-}
